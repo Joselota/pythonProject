@@ -42,37 +42,41 @@ def main():
     print(localtime)
 
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + " ")
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".detallefactcompracuarteles")
+    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".MovDiaPer")
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + " ")
 
     # Base de datos Kupay (Desde donde se leen los datos)
     Campos = pyodbc.connect('DSN=CamposV3')
     campos_cursor = Campos.cursor()
 
-    #SELECT IDDetFactCpra, CodCuartel, Costo, Fecha, Hectareas FROM detallefactcompracuarteles;
-    # TABLA cultivos
+    # Tabla `MovDiaPer`
     i = 0
-    campos_cursor.execute('SELECT IDDetFactCpra, CodCuartel, Costo, Fecha, Hectareas FROM detallefactcompracuarteles')
+    campos_cursor.execute('SELECT Fecha, CodPer, NLinea, TotalDia, TotalDiaCant, Estado, TotDiaSinHE, CodMovDia,'
+                          ' DiaSemana, TotalBonos, TotalHE, Folio FROM MovDiaPer')
     registrosorigen = campos_cursor.rowcount
-    print("(102) tabla detallefactcompracuarteles")
+    print("(104) tabla MovDiaPer")
     print(registrosorigen)
-    for IDDetFactCpra, CodCuartel, Costo, Fecha, Hectareas in campos_cursor.fetchall():
+    for Fecha, CodPer, NLinea, TotalDia, TotalDiaCant, Estado, TotDiaSinHE, CodMovDia, DiaSemana, TotalBonos, TotalHE, Folio in campos_cursor.fetchall():
         i = i + 1
-        print(IDDetFactCpra, CodCuartel, Costo, Fecha, Hectareas)
-        sql = "INSERT INTO " + EsquemaBD + ".detallefactcompracuarteles(IDDetFactCpra, CodCuartel, Costo, Fecha, Hectareas) " \
-                                            "VALUES (%s, %s, %s, %s, %s)"
-        val = (IDDetFactCpra, CodCuartel, Costo, Fecha, Hectareas)
+        if str(TotalDia) == 'inf':
+            TotalDia = 0
+        if str(TotDiaSinHE) == 'inf':
+            TotDiaSinHE = 0
+        print(Fecha, CodPer, NLinea, TotalDia, TotalDiaCant, Estado, TotDiaSinHE, CodMovDia, DiaSemana, TotalBonos, TotalHE, Folio)
+        sql = "INSERT INTO " + EsquemaBD + ".MovDiaPer (Fecha, CodPer, NLinea, TotalDia, TotalDiaCant, Estado, TotDiaSinHE," \
+                                           " CodMovDia, DiaSemana, TotalBonos, TotalHE, Folio) " \
+                                           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        val = (Fecha, CodPer, NLinea, TotalDia, TotalDiaCant, Estado, TotDiaSinHE, CodMovDia, DiaSemana, TotalBonos, TotalHE, Folio)
         bdg_cursor.execute(sql, val)
         bdg.commit()
-    print("Cantidad de registros en la tabla detallefactcompracuarteles: ", i)
+    print("Cantidad de registros en la tabla MovDiaPer: ", i)
     # Proceso cuadratura de carga
     sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, " \
                                        "NroRegistroOrigen, NroRegistroDestino, FechaCarga) " \
                                        "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    val = (Identificador, SistemaOrigen, 'detallefactcompracuarteles', 'detallefactcompracuarteles', registrosorigen, i, fechacarga)
+    val = (Identificador, SistemaOrigen, 'MovDiaPer', 'MovDiaPer', registrosorigen, i, fechacarga)
     bdg_cursor.execute(sql, val)
     bdg.commit()
-
 
 
     # Cierre de cursores y bases de datos
@@ -81,7 +85,7 @@ def main():
     bdg.close()
     bdg_cursor.close()
     print("fin cierre de cursores y bases")
-    envio_mail("Fin proceso de Cargar Tablas en Campos 7/9")
+    envio_mail("Fin proceso de Cargar Tablas en Campos 9/9")
     exit(1)
 
 if __name__ == "__main__":
