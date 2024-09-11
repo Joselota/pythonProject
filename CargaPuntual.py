@@ -36,31 +36,14 @@ else:
     # Muestra fecha y hora actual al iniciar el proceso
     localtime = time.asctime(time.localtime(time.time()))
     print("Fecha y hora de inicio del proceso" + localtime)
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_deta_pacag")
-    print("Fin del proceso de truncado de tablas")
-
    # TABLA deta_pacag
     i = 0
-    kupay_cursor.execute('SELECT ID_Pack, CodMat, Cant, Costo, CodFam, NItem, QtyProc, FReservaMS, SoloKit FROM deta_pacag')
+    kupay_cursor.execute('SELECT UserID, UserName, ID, Pwd FROM users')
     registrosorigen = kupay_cursor.rowcount
-    print("(55) tabla deta_pacag")
-    for ID_Pack, CodMat, Cant, Costo, CodFam, NItem, QtyProc, FReservaMS, SoloKit in kupay_cursor.fetchall():
+    print("tabla users")
+    for UserID, UserName, ID, Pwd in kupay_cursor.fetchall():
         i = i + 1
-        sql = "INSERT INTO " + EsquemaBD + ".bdg_deta_pacag (ID_Pack, CodMat, Cant, Costo, CodFam, NItem, " \
-                                           "QtyProc, FReservaMS, SoloKit) VALUES " \
-                                           "(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        val = (ID_Pack, CodMat, Cant, Costo, CodFam, NItem, QtyProc, FReservaMS, SoloKit)
-        bdg_cursor.execute(sql, val)
-        bdg.commit()
-    print("Cantidad de registros en la tabla deta_pacag: ", i)
-
-    # Proceso cuadratura de carga
-    sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, " \
-                                       "TablaDestino, NroRegistroOrigen, NroRegistroDestino, FechaCarga) " \
-                                       "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    val = (Identificador, SistemaOrigen, 'deta_pacag', 'bdg_deta_pacag', registrosorigen, i, fechacarga)
-    bdg_cursor.execute(sql, val)
-    bdg.commit()
+        print(UserID, UserName, ID, Pwd)
 
     # Cierre de cursores y bases de datos
     kupay_cursor.close()

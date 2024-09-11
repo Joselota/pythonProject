@@ -23,7 +23,7 @@ DRIVER = 'ODBC Driver 17 for SQL Server'
 SERVER = '192.168.50.16'
 DATABASE = 'viumanent'
 UID = 'Analista'
-PWD = 'Ana2023,'
+PWD = 'Repo2024.'
 
 # Credenciales para envio de correo
 sender_email = "ingrid.gonzalez.solis@gmail.com"

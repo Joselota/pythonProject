@@ -37,7 +37,6 @@ else:
     localtime = time.asctime(time.localtime(time.time()))
     print("Fecha y hora de inicio del proceso" + localtime)
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_detalleconsvinos")
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_det_emb_prod")
     print("Fin del proceso de truncado de tablas")
 
    # TABLA detalleconsvinos
@@ -73,45 +72,6 @@ else:
     bdg_cursor.execute(sql, val)
     bdg.commit()
 
-    # TABLA det_emb_prod
-    i = 0
-    kupay_cursor.execute('select ID_MovPedido, CodMat, CantEmb, Merma_Emb, Costo, FStoc, TotCosto, ExistBodega from det_emb_prod')
-    registrosorigen = kupay_cursor.rowcount
-    print("(57) tabla det_emb_prod")
-    for ID_MovPedido, CodMat, CantEmb, Merma_Emb, Costo, FStoc, TotCosto, ExistBodega in kupay_cursor.fetchall():
-        i = i + 1
-        if str(Costo) == 'inf':
-            Costo = 0
-        elif str(Costo) == '-inf':
-            Costo = 0
-        if str(TotCosto) == 'inf':
-            TotCosto = 0
-        elif str(TotCosto) == '-inf':
-            TotCosto = 0
-        if str(FStoc) == 'inf':
-            FStoc = 0
-        elif str(FStoc) == '-inf':
-            FStoc = 0
-        if str(CantEmb) == 'inf':
-            CantEmb = 0
-        elif str(CantEmb) == '-inf':
-            CantEmb = 0
-        sql = "INSERT INTO " + EsquemaBD + ".bdg_det_emb_prod (ID_MovPedido, CodMat, CantEmb, Merma_Emb, " \
-                                           "Costo, FStoc, TotCosto, ExistBodega) VALUES " \
-                                           "(%s, %s, %s, %s, %s, %s, %s, %s) "
-        val = (ID_MovPedido, CodMat, CantEmb, Merma_Emb, Costo, FStoc, TotCosto, ExistBodega)
-        print(val)
-        bdg_cursor.execute(sql, val)
-        bdg.commit()
-    print("Cantidad de registros en la tabla det_emb_prod: ", i)
-
-    # Proceso cuadratura de carga
-    sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, " \
-                                       "TablaDestino, NroRegistroOrigen, NroRegistroDestino, FechaCarga) " \
-                                       "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    val = (Identificador, SistemaOrigen, 'det_emb_prod', 'bdg_det_emb_prod', registrosorigen, i, fechacarga)
-    bdg_cursor.execute(sql, val)
-    bdg.commit()
 
     # Cierre de cursores y bases de datos
     kupay_cursor.close()

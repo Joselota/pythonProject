@@ -72,6 +72,7 @@ else:
                f_limpiar(CCosto), f_limpiar(CostoVta), f_limpiar(CBodTr), f_limpiar(EsMuestra), f_limpiar(TieneLotes),
                f_limpiar(IdDetalleGD), f_limpiar(GD_Apelacion), f_limpiar(GD_Aptitud), f_limpiar(CodigoCuba),
                f_limpiar(Mezcla), f_limpiar(GradoA), f_limpiar(CImputacion))
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_detalle_gd: ", i)
@@ -85,22 +86,37 @@ else:
     bdg.commit()
 
     # TABLA bdg_det_emb_prod
-    kupay_cursor.execute('select ID_MovPedido, CodMat, CantEmb, Merma_Emb, Costo, FStoc, TotCosto, '
-                         'ExistBodega from det_emb_prod')
-    print("(60) tabla bdg_det_emb_prod")
-    registrosorigen = kupay_cursor.rowcount
     i = 0
+    kupay_cursor.execute('select ID_MovPedido, CodMat, CantEmb, Merma_Emb, Costo, FStoc, '
+                         'TotCosto, ExistBodega from det_emb_prod')
+    registrosorigen = kupay_cursor.rowcount
+    print("(57) tabla det_emb_prod")
     for ID_MovPedido, CodMat, CantEmb, Merma_Emb, Costo, FStoc, TotCosto, ExistBodega in kupay_cursor.fetchall():
         i = i + 1
-        CantEmb = f_limpiar(CantEmb)
-        TotCosto = f_limpiar(TotCosto)
-        Costo = f_limpiar(Costo)
-        sql = "INSERT INTO " + EsquemaBD + ".bdg_det_emb_prod (ID_MovPedido, CodMat, CantEmb, Merma_Emb, Costo, " \
-                                           "FStoc, TotCosto, ExistBodega) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+        if str(Costo) == 'inf':
+            Costo = 0
+        elif str(Costo) == '-inf':
+            Costo = 0
+        if str(TotCosto) == 'inf':
+            TotCosto = 0
+        elif str(TotCosto) == '-inf':
+            TotCosto = 0
+        if str(FStoc) == 'inf':
+            FStoc = 0
+        elif str(FStoc) == '-inf':
+            FStoc = 0
+        if str(CantEmb) == 'inf':
+            CantEmb = 0
+        elif str(CantEmb) == '-inf':
+            CantEmb = 0
+        sql = "INSERT INTO " + EsquemaBD + ".bdg_det_emb_prod (ID_MovPedido, CodMat, CantEmb, Merma_Emb, " \
+                                           "Costo, FStoc, TotCosto, ExistBodega) VALUES " \
+                                           "(%s, %s, %s, %s, %s, %s, %s, %s) "
         val = (ID_MovPedido, CodMat, CantEmb, Merma_Emb, Costo, FStoc, TotCosto, ExistBodega)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
-    print("Cantidad de registros en la tabla bdg_det_embal: ", i)
+    print("Cantidad de registros en la tabla det_emb_prod: ", i)
 
     # Proceso cuadratura de carga
     sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, " \
@@ -120,6 +136,7 @@ else:
         sql = "INSERT INTO " + EsquemaBD + ".bdg_det_embal (IDEmb, CodMat, Cant, CodFam, " \
                                            "QtyProc, Costo, FReservaMS) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         val = (IDEmb, CodMat, Cant, CodFam, QtyProc, Costo, FReservaMS)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_det_embal: ", i)

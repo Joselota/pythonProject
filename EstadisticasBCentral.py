@@ -54,8 +54,6 @@ for row in myresult:
     lista = response.json()
     lista = lista["Series"]["Obs"]
 
-    df_data = pd.DataFrame(response)
-    df_data.head()
     for indice in lista:
         sql = "INSERT INTO "+EsquemaBD+".bc_detalle (seriesId, indexDateString, value, statusCode) " \
                                        "VALUES (%s,%s,%s,%s) "

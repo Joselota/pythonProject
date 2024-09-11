@@ -1,7 +1,8 @@
 import os
-from DatosConexion.VG import sender_email, email_pass, receiver_email, email_smtp
+from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage
+
 
 def envio_mail(v_email_subject):
     email_subject = v_email_subject
@@ -18,18 +19,20 @@ def envio_mail(v_email_subject):
     server.quit()  # Close connection to serve
 
 
-os.system('python Controller.py')  #
+os.system('python Controller.py')
 envio_mail("Aviso fin ejecución script Controller en DL")
-os.system('python Orden.py')  #
+os.system('python Orden.py')
 envio_mail("Aviso fin ejecución script Orden en DL")
-os.system('python KardexGranel.py')  #
+os.system('python KardexGranel.py')
 envio_mail("Aviso fin ejecución script KardexGranel en DL")
-os.system('python CargaCostosVinos.py')  #
+os.system('python CargaCostosVinos.py')
 envio_mail("Aviso fin ejecución script CargaCostosVinos en DL")
-os.system('python ScriptVC.py')  #
+os.system('python ScriptVC.py')
 envio_mail("Aviso fin ejecución script ScriptVC en DL")
-os.system('python CargarTMovimPedido.py')  #
+os.system('python DestinoMezcla.py')
+envio_mail("Aviso fin ejecución script DestinoMezcla en DL")
+os.system('python CargarTMovimPedido.py')
 envio_mail("Aviso fin ejecución script CargarTMovimPedido en DL")
 
-print("Fin carga desde Kupay parte 2")
+print("Fin carga desde Kupay main 3")
 exit(1)

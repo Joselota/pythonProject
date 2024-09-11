@@ -1,11 +1,13 @@
+import math
 import sys
 import pyodbc
 import pymysql
 import time
-import datetime
-from DatosConexion.VG import IPServidor, UsuarioBD, PasswordBD, sender_email, email_pass, receiver_email, email_smtp
+from datetime import datetime
+from DatosConexion.VG import IPServidor, UsuarioBD, PasswordBD, sender_email, email_pass, email_smtp  # , receiver_email
 import smtplib
 from email.message import EmailMessage
+
 
 def envio_mail(v_email_subject):
     email_subject = v_email_subject
@@ -21,17 +23,24 @@ def envio_mail(v_email_subject):
     server.send_message(message)  # Send email
     server.quit()  # Close connection to serve
 
+
 # VariablesGlobales
 EsquemaBD = "stagekupay"
 SistemaOrigen = "Kupay"
-fechacarga = datetime.datetime.now()
+fechacarga = datetime.now()
+
+# Inicializar variables locales
+now = datetime.now()
+AgnoACarga = now.year
+MesDeCarga = now.month
+AgnoAnteriorCarga = MesDeCarga - 1
+print("Periodo de carga : " + str(AgnoACarga) + str(MesDeCarga))
 
 # Generando identificador para proceso de cuadratura
-dia = str(100+int(format(fechacarga.day)))
-mes = str(100+int(format(fechacarga.month)))
+dia = str(100 + int(format(fechacarga.day)))
+mes = str(100 + int(format(fechacarga.month)))
 agno = format(fechacarga.year)
 Identificador = str(agno) + str(mes[1:]) + str(dia[1:])
-
 
 # Base de datos de Gestion (donde se cargaran los datos)
 bdg = pymysql.connect(host=IPServidor, port=3306, user=UsuarioBD, passwd=PasswordBD, db=EsquemaBD)
@@ -80,15 +89,25 @@ else:
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_materiales")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_notacredito")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_detallenc")
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_monvalordia")
+    # bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_monvalordia")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_notacreditoexp")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_detallencexp")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_fami_mat")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_precios_cliente")
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_movi_insumos")
+    # bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_movi_insumos")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_bodegas")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_insumos")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_condicionpago")
+    bdg_cursor.execute("DELETE FROM " + EsquemaBD + ".bdg_monvalordia where year(fecha)=" + str(AgnoACarga))
+    bdg_cursor.execute("DELETE FROM " + EsquemaBD + ".bdg_movi_insumos where year(fecha)>=" + str(AgnoAnteriorCarga))
+#    bdg_cursor.execute("DELETE FROM " + EsquemaBD + ".bdg_detalle_fac "
+#                    "where numero in (select distinct numero from "
+#                       + EsquemaBD + ".bdg_facturas where year(fecha)= " + str(AgnoACarga) + ")")
+#    bdg_cursor.execute("DELETE FROM " + EsquemaBD + ".bdg_deta_facexp "
+#                    "where NumeroFactExp in (select distinct NumeroFactExp from "
+#                       + EsquemaBD + ".bdg_factura_expo where year(fecha)= " + str(AgnoACarga) + ")")
+
+    bdg_cursor.execute(" COMMIT; ")
     print("Fin del proceso de truncado de tablas")
 
     ######################
@@ -106,17 +125,17 @@ else:
     registrosorigen = kupay_cursor.rowcount
     i = 0
     for CodProducto, Producto, CodMarca, CodVar, Cali, CostoSTDProd, Existencia, Id_PT, Moneda, Tipo_vino, Cosecha, \
-         CtaCtble, CodLinea, CCosto, Impuesto, CuentaVtaExport, Etiqueta, CostoStdVino, Comentarios, Temp, NoVigente, \
-         Cvalle, SinArte, CodigoExterno, Temp1, NombreFact, UnidadNegocio, Critico, Nac, TiempoProd, Tolerancia, \
-         CodigoArancel, FechaEstado, KIT, EAN, DUM, Grado, AlturaEt, Capacidad, NroBoletin, UltUsuarioMod, \
-         Detalle1, Detalle2 in kupay_cursor.fetchall():
+        CtaCtble, CodLinea, CCosto, Impuesto, CuentaVtaExport, Etiqueta, CostoStdVino, Comentarios, Temp, NoVigente, \
+        Cvalle, SinArte, CodigoExterno, Temp1, NombreFact, UnidadNegocio, Critico, Nac, TiempoProd, Tolerancia, \
+        CodigoArancel, FechaEstado, KIT, EAN, DUM, Grado, AlturaEt, Capacidad, NroBoletin, UltUsuarioMod, \
+        Detalle1, Detalle2 in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_submarca (CodProducto, Producto,CodMarca,CodVar,Cali, " \
                                            "CostoSTDProd,Existencia,Id_PT, Moneda,Tipo_vino,Cosecha,CtaCtble, " \
                                            "CodLinea,CCosto,Impuesto,CuentaVtaExport,Etiqueta,CostoStdVino," \
                                            "Comentarios,Temp,NoVigente,Cvalle,SinArte, CodigoExterno, Temp1," \
-                                           "NombreFact,UnidadNegocio, Critico,Nac,TiempoProd,Tolerancia,CodigoArancel,"\
-                                           "FechaEstado,KIT,EAN,DUM,Grado," \
+                                           "NombreFact,UnidadNegocio, Critico,Nac,TiempoProd,Tolerancia," \
+                                           "CodigoArancel, FechaEstado,KIT,EAN,DUM,Grado," \
                                            "AlturaEt, Capacidad,NroBoletin, UltUsuarioMod,Detalle1,Detalle2) " \
                                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
                                            "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
@@ -132,7 +151,8 @@ else:
 
     # Proceso cuadratura de carga
     sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino," \
-          " NroRegistroOrigen, NroRegistroDestino, FechaCarga) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                                       " NroRegistroOrigen, NroRegistroDestino, FechaCarga) " \
+                                       " VALUES (%s, %s, %s, %s, %s, %s, %s)"
     val = (Identificador, SistemaOrigen, 'submarca', 'bdg_submarca', registrosorigen, i, fechacarga)
     bdg_cursor.execute(sql, val)
     bdg.commit()
@@ -147,16 +167,19 @@ else:
     print("(2) tabla empresas")
     registrosorigen = kupay_cursor.rowcount
     for CodigoEmp, RUT, RazonSocial, Direccion, CorrBoletas, CorrGuias, CorrFacturas, CorrNCredNac, CorrInstructivo, \
-         CorrProforma, CorrFactExp, Pais, Fono, Fax, eMail, SitioWeb, Ciudad, RepresentanteLegal, Giro, CorrNCredExp, \
-         EmpRol, CorrNDebNac, CorrNDebExp, CodigoFin700, MembreteProforma, Comuna, CorrFactExenta, \
-         CorrGuiasPre in kupay_cursor.fetchall():
+        CorrProforma, CorrFactExp, Pais, Fono, Fax, eMail, SitioWeb, Ciudad, RepresentanteLegal, Giro, CorrNCredExp, \
+        EmpRol, CorrNDebNac, CorrNDebExp, CodigoFin700, MembreteProforma, Comuna, CorrFactExenta, \
+        CorrGuiasPre in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_empresas (CodigoEmp, RUT, RazonSocial, Direccion, " \
-              " CorrBoletas, CorrGuias, CorrFacturas, CorrNCredNac, CorrInstructivo, CorrProforma, " \
-              " CorrFactExp, Pais, Fono, Fax, eMail, SitioWeb, Ciudad, RepresentanteLegal, Giro, " \
-              " CorrNCredExp, EmpRol, CorrNDebNac, CorrNDebExp, CodigoFin700, MembreteProforma, " \
-              " Comuna, CorrFactExenta, CorrGuiasPre) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-              " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                           " CorrBoletas, CorrGuias, CorrFacturas, CorrNCredNac, CorrInstructivo, " \
+                                           "CorrProforma, CorrFactExp, Pais, Fono, Fax, eMail, SitioWeb, Ciudad, " \
+                                           " RepresentanteLegal, Giro, CorrNCredExp, EmpRol, CorrNDebNac, " \
+                                           " CorrNDebExp, CodigoFin700, MembreteProforma, Comuna, " \
+                                           " CorrFactExenta, CorrGuiasPre) " \
+                                           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+                                           " %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
+                                           "%s, %s, %s, %s, %s, %s, %s)"
         val = (CodigoEmp, RUT, RazonSocial, Direccion, CorrBoletas, CorrGuias, CorrFacturas, CorrNCredNac,
                CorrInstructivo, CorrProforma, CorrFactExp, Pais, Fono, Fax, eMail, SitioWeb, Ciudad,
                RepresentanteLegal, Giro, CorrNCredExp, EmpRol, CorrNDebNac, CorrNDebExp, CodigoFin700,
@@ -181,7 +204,7 @@ else:
     print("(3) tabla monedas")
     registrosorigen = kupay_cursor.rowcount
     for CodMon, TC, Moneda, Decimales, ABREV, TCPresup, DescribeIngles, SOLIdentificador, \
-         SOLTipoTabla in kupay_cursor.fetchall():
+        SOLTipoTabla in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_monedas (CodMon, TC, Moneda, Decimales, ABREV, TCPresup, " \
                                            "DescribeIngles, SOLIdentificador, SOLTipoTabla) " \
@@ -274,7 +297,7 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(7) tabla lineas")
     for Codigo, Linea, CuentaPp, NoVigente, CuentaMuestras, CuentaTestigos, CtaMermas, Botella, Corcho, Grupo, Temp, \
-         Clase, UnidadNegocio, Orden, CCosto, FechaEstado, UltUsuarioMod in kupay_cursor.fetchall():
+        Clase, UnidadNegocio, Orden, CCosto, FechaEstado, UltUsuarioMod in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_lineas (Codigo, Linea, CuentaPp, NoVigente, CuentaMuestras, " \
                                            "CuentaTestigos, CtaMermas, Botella, Corcho, Grupo, Temp, Clase, " \
@@ -302,10 +325,13 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(8) tabla variedad")
     for CodVar, NomVariedad, FactLts, FactGota, FactPren, TabBrix, TipoTabla, Tipo, RendFinal, FgotaMaceracion, \
-         FprensaMaceracion, LitrosVendimia, KilosVendimia, Cuenta, varCodExterno, NoVigente, FechaEstado, \
-         UltUsuarioMod, CodFamilia, DescribeValle, CodCal, CodRV, Cod_Reg, Cod_Zona, \
-         Cod_Area in kupay_cursor.fetchall():
+        FprensaMaceracion, LitrosVendimia, KilosVendimia, Cuenta, varCodExterno, NoVigente, FechaEstado, \
+        UltUsuarioMod, CodFamilia, DescribeValle, CodCal, CodRV, Cod_Reg, Cod_Zona, \
+        Cod_Area in kupay_cursor.fetchall():
         i = i + 1
+        if (math.isinf(LitrosVendimia))  :
+            LitrosVendimia = 0
+
         sql = "INSERT INTO " + EsquemaBD + ".bdg_variedad (CodVar, NomVariedad, FactLts, FactGota, FactPren, " \
                                            "TabBrix, TipoTabla, Tipo, RendFinal, FgotaMaceracion, FprensaMaceracion," \
                                            " LitrosVendimia, KilosVendimia, Cuenta, varCodExterno, NoVigente, " \
@@ -316,6 +342,7 @@ else:
         val = (CodVar, NomVariedad, FactLts, FactGota, FactPren, TabBrix, TipoTabla, Tipo, RendFinal, FgotaMaceracion,
                FprensaMaceracion, LitrosVendimia, KilosVendimia, Cuenta, varCodExterno, NoVigente, FechaEstado,
                UltUsuarioMod, CodFamilia, DescribeValle, CodCal, CodRV, Cod_Reg, Cod_Zona, Cod_Area)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla variedad: ", i)
@@ -334,8 +361,8 @@ else:
         ' NoVigente, FechaEstado, UltUsuarioMod from vinosymostos')
     registrosorigen = kupay_cursor.rowcount
     print("(9) tabla vinosymostos")
-    for TipoVino, NombreVino, Tipo, PerDegus, Litros, CostoP, CCosto, CodVar, CaidaDens, DevTemp, Madera, NoVigente,\
-         FechaEstado, UltUsuarioMod in kupay_cursor.fetchall():
+    for TipoVino, NombreVino, Tipo, PerDegus, Litros, CostoP, CCosto, CodVar, CaidaDens, DevTemp, Madera, NoVigente, \
+        FechaEstado, UltUsuarioMod in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_vinosymostos (TipoVino, NombreVino, Tipo, PerDegus, Litros, CostoP," \
                                            " CCosto, CodVar, CaidaDens, DevTemp, Madera, NoVigente, " \
@@ -384,11 +411,11 @@ else:
         ' PorcAnticipo, DiasMora FROM clientenac')
     registrosorigen = kupay_cursor.rowcount
     print("(11) tabla clientenac")
-    for CodClienteNac, Nombre, Fantasia, Direccion, Mercado, CodVendedor, Ciudad, Giro, Region, Telefono, Fax, Comuna,\
-         TipoCliente, Contacto, CargoContacto, FonoContacto, eMail, Comentario, Casilla, PrecioObligado, TotalVta,\
-         TotalCjs, CodMon, Canal, Cod_Giro, Cod_Comuna, Cod_Ciudad, Cod_Pais, Cod_CargoContacto, FPago, NoVigente,\
-         Bloqueado, LimiteCredito, FechaEstado, UltUsuarioMod, MontoLCreditoRef, AnticipoReq, PorcAnticipo, \
-         DiasMora in kupay_cursor.fetchall():
+    for CodClienteNac, Nombre, Fantasia, Direccion, Mercado, CodVendedor, Ciudad, Giro, Region, Telefono, Fax, Comuna, \
+        TipoCliente, Contacto, CargoContacto, FonoContacto, eMail, Comentario, Casilla, PrecioObligado, TotalVta, \
+        TotalCjs, CodMon, Canal, Cod_Giro, Cod_Comuna, Cod_Ciudad, Cod_Pais, Cod_CargoContacto, FPago, NoVigente, \
+        Bloqueado, LimiteCredito, FechaEstado, UltUsuarioMod, MontoLCreditoRef, AnticipoReq, PorcAnticipo, \
+        DiasMora in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_clientenac (CodClienteNac, Nombre, Fantasia, Direccion, Mercado," \
                                            " CodVendedor, Ciudad, Giro, Region, Telefono, Fax, Comuna, TipoCliente," \
@@ -427,12 +454,12 @@ else:
         'ModVentaSII,MontoLCreditoRef,AnticipoReq,PorcAnticipo,CodClausulaVta, FormaPagoCod, DiasMora FROM clientes')
     registrosorigen = kupay_cursor.rowcount
     print("(12) tabla clientes")
-    for CodCliente, Nombre, Fantasia, Direccion, Mercado, Idioma, CodVendedor, Estado, Ciudad, Giro, Telefono, Fax,\
-         Agente, Contacto, Incoterm, FormaPagoNom, Pais, ContactoAgente, Recibidor, eMail, Comentario, CodPostal,\
-         PrecioCliente, TotalVta, LimiteCredito, DominioEmail, CodMon, TotalCjs, MarcaCaja, Cod_Giro, NoVigente,\
-         Cod_Ciudad, FechaEstado, CCosto, Bloqueado, OtroPaisVSC, RutContabilizacion, CodigoBaaNVSC, UltUsuarioMod,\
-         CodigoPais, ModVentaSII, MontoLCreditoRef, AnticipoReq, PorcAnticipo, CodClausulaVta, FormaPagoCod,\
-         DiasMora in kupay_cursor.fetchall():
+    for CodCliente, Nombre, Fantasia, Direccion, Mercado, Idioma, CodVendedor, Estado, Ciudad, Giro, Telefono, Fax, \
+        Agente, Contacto, Incoterm, FormaPagoNom, Pais, ContactoAgente, Recibidor, eMail, Comentario, CodPostal, \
+        PrecioCliente, TotalVta, LimiteCredito, DominioEmail, CodMon, TotalCjs, MarcaCaja, Cod_Giro, NoVigente, \
+        Cod_Ciudad, FechaEstado, CCosto, Bloqueado, OtroPaisVSC, RutContabilizacion, CodigoBaaNVSC, UltUsuarioMod, \
+        CodigoPais, ModVentaSII, MontoLCreditoRef, AnticipoReq, PorcAnticipo, CodClausulaVta, FormaPagoCod, \
+        DiasMora in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_clientes(CodCliente,Nombre,Fantasia,Direccion,Mercado,Idioma," \
                                            "CodVendedor,Estado,Ciudad,Giro,Telefono,Fax,Agente,Contacto,Incoterm," \
@@ -474,12 +501,12 @@ else:
         'FROM Ficha_nac')
     registrosorigen = kupay_cursor.rowcount
     print("(13) tabla Ficha_nac")
-    for NumFichaNac, FechaIngre, CodClienteNac, FechaEntrega, Neto, IVA, ILA, Total, evEstado, QtyVen, QtyMu, QtyTot,\
-         AutorizadoPor, FormaPagoCod, CodVend, LugarEntrega, FechaHora, Comentario, FechaODC, TotNetoMu, TotNetoEmb,\
-         TotNetoVen, QtyEmb, NomCliNac, DiasVenc, ValorConIVA, Despachado, CodEnc, CodMon, ClieBloqueado, SinPedido, \
-         ContratoVta, OrdenCompra, CodigoEmp, CodSucursal, TasaRef, Etique, ConfBodega, TotBotellas, PromVen, \
-         TotFactura, TotMueDcto, CodBod, Ruta, FechaDespacho, SoloInventario, IndicadorMora, SaldoCredito, \
-         ETDReqNac, FechaAutoriza in kupay_cursor.fetchall():
+    for NumFichaNac, FechaIngre, CodClienteNac, FechaEntrega, Neto, IVA, ILA, Total, evEstado, QtyVen, QtyMu, QtyTot, \
+        AutorizadoPor, FormaPagoCod, CodVend, LugarEntrega, FechaHora, Comentario, FechaODC, TotNetoMu, TotNetoEmb, \
+        TotNetoVen, QtyEmb, NomCliNac, DiasVenc, ValorConIVA, Despachado, CodEnc, CodMon, ClieBloqueado, SinPedido, \
+        ContratoVta, OrdenCompra, CodigoEmp, CodSucursal, TasaRef, Etique, ConfBodega, TotBotellas, PromVen, \
+        TotFactura, TotMueDcto, CodBod, Ruta, FechaDespacho, SoloInventario, IndicadorMora, SaldoCredito, \
+        ETDReqNac, FechaAutoriza in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_Ficha_nac (NumFichaNac,FechaIngre,CodClienteNac,FechaEntrega,Neto," \
                                            "IVA,ILA,Total,evEstado,QtyVen,QtyMu,QtyTot,AutorizadoPor,FormaPagoCod," \
@@ -524,15 +551,15 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(14) tabla Ficha_exp")
     for NumFicha, CodCliente, FechaP_O, P_O, Mercado, Incoterm, Vencimiento, FormaPagoNom, Pallets, Mater_Pos, \
-         Comentario, ETDNave, ETACliente, ETDVigna, FechaSTK, Nave, CodMon, Agente, FechaODC, evEstado, Etique, QtyVen,\
-         QtyMu, QtyTot, TotVenCom, TotMueDcto, TotVenBru, TotMueBru, NomCliExp, PromVen, Embarcador, Out, CodVend,\
-         Cod_Banco, SinPedido, ContratoVta, ConfBodega, PtoDestino, Web, CodEnc, FechaIngre, CodigoEmp, ClausulaVta, \
-         Consignar, Notify, TasaRef, CodConsigna, MarcaCaja, CodSucursal, TotFacturaMnd, TotFactura, TotBotellas, \
-         ETDReq, Seguro, Flete, ETDTransporte, PtoEmbarque, Cajas9Lts, CodAgenteAduana, Booking, DestinoCarga, \
-         DespachoExterno, CodBod, CodAdonix, BL_CRT, VI1, ORIGEN, BOLETIN, PACKING_LIST, CERTIF_PESO, EUR1, \
-         MANIF_CARGA, LIBRE_VENTA, AutorizadoPor, ClieBloqueado, IndicadorMora, SaldoCredito, FormaPagoCod, \
-         OtrosGastos, ArancelesImpuestos, HoraInicioSTK, FechaCorteDoc, HoraCorteDoc, FechaTerminoSTK, \
-         HoraTerminoSTK, NomDepContenedor, FechaAutoriza in kupay_cursor.fetchall():
+        Comentario, ETDNave, ETACliente, ETDVigna, FechaSTK, Nave, CodMon, Agente, FechaODC, evEstado, Etique, QtyVen, \
+        QtyMu, QtyTot, TotVenCom, TotMueDcto, TotVenBru, TotMueBru, NomCliExp, PromVen, Embarcador, Out, CodVend, \
+        Cod_Banco, SinPedido, ContratoVta, ConfBodega, PtoDestino, Web, CodEnc, FechaIngre, CodigoEmp, ClausulaVta, \
+        Consignar, Notify, TasaRef, CodConsigna, MarcaCaja, CodSucursal, TotFacturaMnd, TotFactura, TotBotellas, \
+        ETDReq, Seguro, Flete, ETDTransporte, PtoEmbarque, Cajas9Lts, CodAgenteAduana, Booking, DestinoCarga, \
+        DespachoExterno, CodBod, CodAdonix, BL_CRT, VI1, ORIGEN, BOLETIN, PACKING_LIST, CERTIF_PESO, EUR1, \
+        MANIF_CARGA, LIBRE_VENTA, AutorizadoPor, ClieBloqueado, IndicadorMora, SaldoCredito, FormaPagoCod, \
+        OtrosGastos, ArancelesImpuestos, HoraInicioSTK, FechaCorteDoc, HoraCorteDoc, FechaTerminoSTK, \
+        HoraTerminoSTK, NomDepContenedor, FechaAutoriza in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_Ficha_exp(NumFicha,CodCliente,FechaP_O,P_O,Mercado,Incoterm," \
                                            "Vencimiento,FormaPagoNom,Pallets,Mater_Pos,Comentario,ETDNave,ETACliente," \
@@ -586,12 +613,12 @@ else:
         'ArancelesImpuestos FROM INSEMBARQUE')
     registrosorigen = kupay_cursor.rowcount
     print("(15) tabla INSEMBARQUE")
-    for Numero, Orden, TotalFOB, LugarCarga, ETD, Para, PtoEmbar, PtoDestino, FormaPagoNom, Fecha_Ins, Hora_Ins,\
-         Descrip_Cli, NFicha, Notify, CodCliente, Certif, Stacking, CerOrig, Observacion, Naviera, Forwarders,\
-         PesoBrutoC, PesoNetoC, Booking, Container, Consignar, ModVenta, ClausulaCpra, FleteMaritimo, Empaque, Botella,\
-         TotalCajas, CodMon, Nave, Firma, CodigoEmp, CorrEmpresa, ContenedorNum, Deposito, Transporte, Presentarse,\
-         EmbarqueVia, Marcas, Flete, Seguro, ComisionExterior, FormaPagoFlete, NumCartaCredito, CorrMandato,\
-         EncabMandato, OtrosGastos, ArancelesImpuestos in kupay_cursor.fetchall():
+    for Numero, Orden, TotalFOB, LugarCarga, ETD, Para, PtoEmbar, PtoDestino, FormaPagoNom, Fecha_Ins, Hora_Ins, \
+        Descrip_Cli, NFicha, Notify, CodCliente, Certif, Stacking, CerOrig, Observacion, Naviera, Forwarders, \
+        PesoBrutoC, PesoNetoC, Booking, Container, Consignar, ModVenta, ClausulaCpra, FleteMaritimo, Empaque, Botella, \
+        TotalCajas, CodMon, Nave, Firma, CodigoEmp, CorrEmpresa, ContenedorNum, Deposito, Transporte, Presentarse, \
+        EmbarqueVia, Marcas, Flete, Seguro, ComisionExterior, FormaPagoFlete, NumCartaCredito, CorrMandato, \
+        EncabMandato, OtrosGastos, ArancelesImpuestos in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_INSEMBARQUE (Numero,Orden,TotalFOB,LugarCarga,ETD,Para,PtoEmbar," \
                                            "PtoDestino,FormaPagoNom,Fecha_Ins,Hora_Ins,Descrip_Cli,NFicha,Notify," \
@@ -632,7 +659,7 @@ else:
     print("(16) tabla detallemu_fexp")
     for NumFicha, Cantidad, Unidad, Valor, Bruto, MonDesc, TotalDcto, Mercado, Fecha, CodMarca, CodVar, Cosecha, \
         TipoVino, Mes, NomMarca, NomVar, CantBotellas, CodProducto, Saldo, PorcDesc, CodDesc, Descripcion, \
-         ProdEmb, Neto, EsDcto, NLinea, Modificado in kupay_cursor.fetchall():
+        ProdEmb, Neto, EsDcto, NLinea, Modificado in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_detallemu_fexp (NumFicha,Cantidad,Unidad,Valor,Bruto," \
                                            "MonDesc,TotalDcto,Mercado,Fecha,CodMarca,CodVar,Cosecha," \
@@ -665,7 +692,7 @@ else:
     print("(17) tabla detallemu_fnac")
     for NumFichaNac, Cantidad, Unidad, Valor, DescAdic, CodMarca, CodVar, Cosecha, TipoVino, CodCal, PorcDesc, \
         Neto, NomMarca, NomVar, CantBotellas, CodProducto, Saldo, ProdEmb, Mes, CodDesc, EsDcto, TotalDcto, \
-         MonDesc, NLinea, Modificado in kupay_cursor.fetchall():
+        MonDesc, NLinea, Modificado in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_detallemu_fnac (NumFichaNac,Cantidad,Unidad,Valor,DescAdic," \
                                            "CodMarca,CodVar,Cosecha,TipoVino,CodCal,PorcDesc,Neto,NomMarca," \
@@ -693,13 +720,14 @@ else:
         'SELECT Numero,DF_Cant,DF_Unid,DT_Val,DT_Tot,DF_Marc,DF_Var,DF_Cos,DF_Cal,CodProducto,DF_Vino,'
         'DF_NPed,DF_Desc,DF_Adic,DF_ValDesc,DF_DesAdic,DF_Descripcion,Cuba,TipoMov,CtaVentas,TipoImp,'
         'MontoImp,CodConcepto,CostoVta,CCosto,Resta,EsDcto,DF_Neto,EsMuestra,CalculaILA,TieneLotes,'
-        'IdDetalleFN,CtaCostoVta,CImputacion FROM detalle_fac')
+        'IdDetalleFN,CtaCostoVta,CImputacion FROM detalle_fac ')
+
     registrosorigen = kupay_cursor.rowcount
     print("(18) tabla detalle_fac")
     for Numero, DF_Cant, DF_Unid, DT_Val, DT_Tot, DF_Marc, DF_Var, DF_Cos, DF_Cal, CodProducto, DF_Vino, DF_NPed, \
         DF_Desc, DF_Adic, DF_ValDesc, DF_DesAdic, DF_Descripcion, Cuba, TipoMov, CtaVentas, TipoImp, MontoImp, \
         CodConcepto, CostoVta, CCosto, Resta, EsDcto, DF_Neto, EsMuestra, CalculaILA, TieneLotes, IdDetalleFN, \
-         CtaCostoVta, CImputacion in kupay_cursor.fetchall():
+        CtaCostoVta, CImputacion in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_detalle_fac (Numero,DF_Cant,DF_Unid,DT_Val,DT_Tot," \
                                            "DF_Marc,DF_Var,DF_Cos,DF_Cal,CodProducto,DF_Vino,DF_NPed," \
@@ -745,7 +773,7 @@ else:
         NumFolio, Ruta, CodOper, OrdenCpraFicha, FechaModificacion, QuienModificacion, Impresa, Centralizada, \
         CodigoOC, CentralizaCV, FechaContabiliza, MotivoAnulacion, CDITotal, CDIIVA, CodCC, WS_NumCabID, \
         WS_FolioSII, AutorizadoPor, ClieBloqueado, IndicadorMora, SaldoCredito, FechaAutoriza, CabLlgId, \
-         CabOpeNumero, NulaPorNC in kupay_cursor.fetchall():
+        CabOpeNumero, NulaPorNC in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_facturas (Numero,Fecha,Cli_Fac,Vend_Fac,NumFichaNac,Neto," \
                                            "Iva,Ila,Total,Est,Abonos,Saldo,NomCli,Vence,Pedido,NetoVe,NetoMu," \
@@ -813,7 +841,7 @@ else:
         RebajaExist, numperiodo, CodOper, FechaModificacion, QuienModificacion, FechaTasaUSD, FechaTasaPesosUSD, \
         Centralizada, CodigoOC, CentralizaCV, FechaContabiliza, CDITotal, CDISeguro, CDIFlete, CodCC, \
         CodCondPago, WS_NumCabID, WS_FolioSII, CodModVenta, CodViaTransporte, FormaPagoCod, OtrosGastos, \
-         ArancelesImpuestos, CDIOtrGastos, CDIAImpuestos, CabLlpId, CabOpeNumero in kupay_cursor.fetchall():
+        ArancelesImpuestos, CDIOtrGastos, CDIAImpuestos, CabLlpId, CabOpeNumero in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_factura_expo (NumeroFactExp,Fecha,CodCliente,Moneda," \
                                            "TotalMercaderia,FormaPagoNom,FechaVence,Transporte,Embarque," \
@@ -829,7 +857,7 @@ else:
                                            "GlosaTotSeguro,GlosaTotFlete,GlosaTotUSD,ClausulaVta,TotalFOC," \
                                            "TotalaPago,Vendedor,Mercado,CodCliFicha,FE_ABBA,RebajaExist," \
                                            "numperiodo,CodOper,FechaModificacion,QuienModificacion," \
-                                           "FechaTasaUSD,FechaTasaPesosUSD,"\
+                                           "FechaTasaUSD,FechaTasaPesosUSD," \
                                            "Centralizada,CodigoOC,CentralizaCV,FechaContabiliza,CDITotal," \
                                            "CDISeguro,CDIFlete,CodCC,CodCondPago,WS_NumCabID,WS_FolioSII," \
                                            "CodModVenta,CodViaTransporte,FormaPagoCod,OtrosGastos,ArancelesImpuestos," \
@@ -871,12 +899,13 @@ else:
     kupay_cursor.execute(
         'SELECT NumeroFactExp,D_Cant,D_Descri,D_PrUnit,D_DTota,D_Unid,CodProducto,Desc1,DescCom,CodConcepto,'
         'CodigoExterno,Resta,CostoVta,EsDcto,NLinea,Ccosto,CtaVenta,EsMuestra,CodArancel,'
-        'CAST(d_totalpesos as float) as D_TotalPesos,CtaCostoVta,CImputacion FROM deta_facexp')
+        'CAST(d_totalpesos as float) as D_TotalPesos,CtaCostoVta,CImputacion FROM deta_facexp ')
+
     registrosorigen = kupay_cursor.rowcount
     print("(21) tabla deta_facexp")
     for NumeroFactExp, D_Cant, D_Descri, D_PrUnit, D_DTota, D_Unid, CodProducto, Desc1, DescCom, CodConcepto, \
         CodigoExterno, Resta, CostoVta, EsDcto, NLinea, Ccosto, CtaVenta, EsMuestra, CodArancel, \
-         D_TotalPesos, CtaCostoVta, CImputacion in kupay_cursor.fetchall():
+        D_TotalPesos, CtaCostoVta, CImputacion in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_deta_facexp (NumeroFactExp,D_Cant,D_Descri,D_PrUnit," \
                                            "D_DTota,D_Unid,CodProducto,Desc1,DescCom,CodConcepto,CodigoExterno," \
@@ -908,7 +937,7 @@ else:
     print("(22) tabla detalle_ficha")
     for NumFicha, Cantidad, Unidad, Valor, Bruto, PorcComision, MontoComision, Mercado, Fecha, CodMarca, \
         CodVar, Cosecha, TipoVino, Mes, CantBotellas, CodProducto, Saldo, PorcDesc, CValle, CodCal, Neto, \
-         MonDesc, NLinea, Cjs9Lts, Grado, KIT, Modificado in kupay_cursor.fetchall():
+        MonDesc, NLinea, Cjs9Lts, Grado, KIT, Modificado in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_detalle_ficha (NumFicha,Cantidad,Unidad,Valor,Bruto," \
                                            "PorcComision,MontoComision,Mercado,Fecha,CodMarca,CodVar,Cosecha," \
@@ -938,8 +967,8 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(23) tabla detalle_fichanac")
     for NumFichaNac, Cantidad, Unidad, Valor, DescAdic, CodMarca, CodVar, Cosecha, TipoVino, CodCal, PorcDesc, Neto, \
-         CantBotellas, CodProducto, Saldo, Mes, MonDesc, NLinea, ValorOrig, \
-         Grado, KIT, Modificado in kupay_cursor.fetchall():
+        CantBotellas, CodProducto, Saldo, Mes, MonDesc, NLinea, ValorOrig, \
+        Grado, KIT, Modificado in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_detalle_fichanac (NumFichaNac,Cantidad,Unidad,Valor,DescAdic," \
                                            "CodMarca,CodVar,Cosecha,TipoVino,CodCal,PorcDesc,Neto,CantBotellas," \
@@ -952,7 +981,7 @@ else:
         bdg.commit()
     print("Cantidad de registros en la tabla detalle_fichanac: ", i)
     # Proceso cuadratura de carga
-    sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura(id,SistemaOrigen,TablaOrigen,TablaDestino,NroRegistroOrigen,"\
+    sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura(id,SistemaOrigen,TablaOrigen,TablaDestino,NroRegistroOrigen," \
                                        " NroRegistroDestino, FechaCarga)" \
                                        " VALUES (%s, %s, %s, %s, %s, %s, %s)"
     val = (Identificador, SistemaOrigen, 'detalle_fichanac', 'bdg_detalle_fichanac', registrosorigen, i, fechacarga)
@@ -967,7 +996,7 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(24) tabla deta_embfactn")
     for Det_EmbFN, FN_Cant, CodMat, FN_Valor, FN_Total, FNDesc1, FNDesc2, FN_Descrip, CodBod, CCosto, CtaVenta, \
-         CostoVta, FN_Neto, CtaCostoVta, CImputacion in kupay_cursor.fetchall():
+        CostoVta, FN_Neto, CtaCostoVta, CImputacion in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_deta_embfactn (Det_EmbFN,FN_Cant,CodMat,FN_Valor,FN_Total,FNDesc1," \
                                            "FNDesc2,FN_Descrip,CodBod,CCosto,CtaVenta,CostoVta,FN_Neto,CtaCostoVta," \
@@ -993,7 +1022,7 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(25) tabla descuentosvta")
     for CodDesc, Concepto, PorcDef, MontoDef, TotFicha, Facturable, Tipo, Abrev, Producto, \
-         SobreFOBPdto, Orden, CtaCtbleVSC in kupay_cursor.fetchall():
+        SobreFOBPdto, Orden, CtaCtbleVSC in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_descuentosvta (CodDesc,Concepto,PorcDef,MontoDef,TotFicha," \
                                            "Facturable,Tipo,Abrev,Producto,SobreFOBPdto,Orden,CtaCtbleVSC) " \
@@ -1025,7 +1054,7 @@ else:
         CodCtaCtble, CorrecMonetaria, Grupo, Fisico, CantidadInicial, CantidadFinal, TotMontoFinal, \
         ErrorKardex, TomaInv, CodAuxiliar, ValorAuxiliar, EsSouvenir, MargenMerma, Codprov, CodCtaMerma, \
         Cosecha, Grado, PathNorma, CodigoOrigen, CCostoMerma, NoVigente, FechaEstado, UltUsuarioMod, \
-         CodCtaGastos, tmpValorPMP in kupay_cursor.fetchall():
+        CodCtaGastos, tmpValorPMP in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_materiales (CodMat,Descripcion,Existencia,Precio,Fam,CapacBot," \
                                            "StocIn,TotalValor,Unidad,Minimo,Codigo_Ext,CodCtaCtble," \
@@ -1067,7 +1096,7 @@ else:
         CorrEmpresa, PorcIVA, PorcILA, NumFolio, TipoDebito, Observaciones, Estado, CodOper, Centralizada, \
         CodigoOC, num_periodo, CentralizaCV, FechaContabiliza, MotivoAnulacion, CodRefDTE, CDITotal, CDIIVA, \
         CDIILA, Abonos, Saldo, bSelect, Temp, CodCC, WS_NumCabID, WS_FolioSII, CabLlgId, CabOpeNumero, \
-         NumFichaFac, NoReversaCV, NumInternoRef in kupay_cursor.fetchall():
+        NumFichaFac, NoReversaCV, NumInternoRef in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_notacredito (Numero, Fecha, CodCli, Factura, Neto, Iva, " \
                                            "Total, IngStock, Ila, Glosa_NC, Tipo_Doc, Boleta, CodigoEmp," \
@@ -1104,7 +1133,7 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(28) tabla detallenc")
     for NumeroNC, CodProducto, DescripcionNC, CantidadNC, PrecioNC, SubTotalNC, Unidad, MontoImp, Lote, \
-         CodBod, Cuenta, CCosto, CalculaILA, CtaCostoVta, CostoVta, CImputacion in kupay_cursor.fetchall():
+        CodBod, Cuenta, CCosto, CalculaILA, CtaCostoVta, CostoVta, CImputacion in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_detallenc (NumeroNC, CodProducto, DescripcionNC, CantidadNC, " \
                                            "PrecioNC, SubTotalNC,  Unidad,  MontoImp, Lote, CodBod, Cuenta, " \
@@ -1125,7 +1154,7 @@ else:
 
     # TABLA MonValorDia 29
     i = 0
-    kupay_cursor.execute('SELECT CodMon, Fecha, Valor FROM monvalordia')
+    kupay_cursor.execute('SELECT CodMon, Fecha, Valor FROM monvalordia where year(fecha)=' + str(AgnoACarga))
     registrosorigen = kupay_cursor.rowcount
     print("(29) tabla MonValorDia")
     for CodMon, Fecha, Valor in kupay_cursor.fetchall():
@@ -1155,11 +1184,11 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(30) tabla bdg_notacreditoexp")
     for Numero, Fecha, CodCliente, NumeroFactExp, FechaFactExp, FormaPagoCod, GlosaTotal2, GlosaGral, CorrEmpresa, \
-        CodigoEmp, TotalValor, Total2, TotalGral, CodMon, Tipo_Doc, ModStock, TasaMon, TasaPesosMon, TotalPesos,\
-        TipoDebito, Observaciones, Estado, CodOper, CodigoOC, numperiodo, Centralizada, CentralizaCV,\
+        CodigoEmp, TotalValor, Total2, TotalGral, CodMon, Tipo_Doc, ModStock, TasaMon, TasaPesosMon, TotalPesos, \
+        TipoDebito, Observaciones, Estado, CodOper, CodigoOC, numperiodo, Centralizada, CentralizaCV, \
         FechaContabiliza, ExpresadoEn, MotivoAnulacion, CDITotal, CodRefDTE, PtoEmbarque, PtoDestino, \
         NumOrdenPO, EsDeNCE, CodCC, WS_NumCabID, WS_FolioSII, CabLlgId, \
-         CabOpeNumero in kupay_cursor.fetchall():
+        CabOpeNumero in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_notacreditoexp (Numero,  Fecha,  CodCliente,  NumeroFactExp,  " \
                                            "FechaFactExp,  FormaPagoCod,  GlosaTotal2,  GlosaGral,  " \
@@ -1197,8 +1226,8 @@ else:
         ' CCosto, ValorTotPesos, CtaCostoVta, EsMuestra, CImputacion FROM DetalleNCExp')
     registrosorigen = kupay_cursor.rowcount
     print("(31) tabla DetalleNCExp")
-    for Numero, CodProducto, Descripcion, Cantidad, Precio, ValorTotal, Unidad, Lote, CodBod, NLinea, Cuenta, CCosto,\
-         ValorTotPesos, CtaCostoVta, EsMuestra, CImputacion in kupay_cursor.fetchall():
+    for Numero, CodProducto, Descripcion, Cantidad, Precio, ValorTotal, Unidad, Lote, CodBod, NLinea, Cuenta, CCosto, \
+        ValorTotPesos, CtaCostoVta, EsMuestra, CImputacion in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_DetalleNCExp (Numero, CodProducto, Descripcion, Cantidad,  Precio, " \
                                            "ValorTotal, Unidad, Lote,CodBod, NLinea, Cuenta, CCosto, ValorTotPesos, " \
@@ -1227,7 +1256,7 @@ else:
     print("(32) tabla bdg_fami_mat")
     for CodFam, Familia, NItem, CodCtaGenerica, TotCant, TotMonto, TotCantPeriodo, TotMontoPeriodo, TotCantFinal, \
         TotMontoFinal, Serie, CorrInicio, CorrFin, CorrActual, NoVigente, FechaEstado, UltUsuarioMod, CodInterno, \
-         CodCtaGastos in kupay_cursor.fetchall():
+        CodCtaGastos in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_fami_mat (CodFam,Familia,NItem,CodCtaGenerica,TotCant,TotMonto," \
                                            "TotCantPeriodo,TotMontoPeriodo,TotCantFinal,TotMontoFinal,Serie," \
@@ -1255,8 +1284,8 @@ else:
         ' fechaestado, ultusuariomod from precios_cliente')
     registrosorigen = kupay_cursor.rowcount
     print("(33) tabla bdg_precios_cliente")
-    for codcliente, codproducto, unidad, codmon, precio, codclientenac, codconcepto, porc, montodes, fechaestado,\
-         ultusuariomod in kupay_cursor.fetchall():
+    for codcliente, codproducto, unidad, codmon, precio, codclientenac, codconcepto, porc, montodes, fechaestado, \
+        ultusuariomod in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_precios_cliente (codcliente, codproducto, unidad, codmon, " \
                                            "precio, codclientenac, codconcepto, porc, montodes, fechaestado, " \
@@ -1278,11 +1307,12 @@ else:
     i = 0
     kupay_cursor.execute(
         'select id_movi, fecha, ndoc, cant, producto, ingreso, egreso, valor, documento, saldo, id_vc, valorpmp, '
-        'saldopesos, codbod, montoingreso, montoegreso, tipo_doc, fechareal from movi_insumos')
+        'saldopesos, codbod, montoingreso, montoegreso, tipo_doc, fechareal '
+        ' from movi_insumos where year(fecha) >= ' + str(AgnoAnteriorCarga))
     registrosorigen = kupay_cursor.rowcount
     print("(34) tabla bdg_movi_insumos")
     for id_movi, fecha, ndoc, cant, producto, ingreso, egreso, valor, documento, saldo, id_vc, valorpmp, saldopesos, \
-         codbod, montoingreso, montoegreso, tipo_doc, fechareal in kupay_cursor.fetchall():
+        codbod, montoingreso, montoegreso, tipo_doc, fechareal in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_movi_insumos (id_movi, fecha, ndoc, cant, producto, ingreso, egreso," \
                                            "valor, documento, saldo, id_vc, valorpmp, saldopesos, codbod, " \
@@ -1310,7 +1340,7 @@ else:
     registrosorigen = kupay_cursor.rowcount
     print("(35) tabla bdg_bodegas")
     for codigo, bodega, ubicacion, mapabod_, tipo, costostd, web, codplanta, novigente, fechaestado, ultusuariomod, \
-         esptovta in kupay_cursor.fetchall():
+        esptovta in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_bodegas(codigo, bodega, ubicacion, mapabod_, tipo, costostd, web, " \
                                            "codplanta, novigente, fechaestado, ultusuariomod, esptovta) " \
@@ -1340,7 +1370,7 @@ else:
     for codigo, tipo, valorpmp, unidad, insumo, aplicacion, factor, existencia, total, lote, solucion, tipoaplicacion, \
         minimo, codigo_ext, codctactble, corrcmonet, noenologico, ficha_, cantidadinicial, cantidadfinal, \
         totmontofinal, errorkardex, tomainv, codctamerma, ccostomerma, novigente, fechaestado, ultusuariomod, \
-         codctagastos, tmpvalorpmp in kupay_cursor.fetchall():
+        codctagastos, tmpvalorpmp in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_insumos(codigo, tipo, valorpmp, unidad, insumo, aplicacion, " \
                                            "factor, existencia, total, lote, solucion, tipoaplicacion, minimo, " \

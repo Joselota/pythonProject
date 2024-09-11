@@ -62,7 +62,7 @@ while url_next != "":
         url_ordenes = "https://" + API_KEY + ":" + PASSWORD + "@viu-manent.myshopify.com/admin/api/2023-01/orders.json?status=any&limit=" + limit
     else:
         url_ordenes = url_next
-    # print(url_ordenes)
+    print(url_ordenes)
     print("i = " + str(i))
     response = requests.get(url_ordenes, params={'client_id': API_KEY, 'scope': 'read_all_orders'},
                             headers={'Content-Type': 'application/json'})

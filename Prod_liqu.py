@@ -7,6 +7,7 @@ from DatosConexion.VG import IPServidor, UsuarioBD, PasswordBD, sender_email, em
 import smtplib
 from email.message import EmailMessage
 
+
 def envio_mail(v_email_subject):
     email_subject = v_email_subject
     message = EmailMessage()
@@ -21,14 +22,18 @@ def envio_mail(v_email_subject):
     server.send_message(message)  # Send email
     server.quit()  # Close connection to serve
 
+
 # VariablesGlobales
 EsquemaBD = "stagekupay"
 SistemaOrigen = "Kupay"
 fechacarga = datetime.datetime.now()
 
+# Inicializar variables locales
+AgnoACarga = 2020
+
 # Generando identificador para proceso de cuadratura
-dia = str(100+int(format(fechacarga.day)))
-mes = str(100+int(format(fechacarga.month)))
+dia = str(100 + int(format(fechacarga.day)))
+mes = str(100 + int(format(fechacarga.month)))
 agno = format(fechacarga.year)
 Identificador = str(agno) + str(mes[1:]) + str(dia[1:])
 
@@ -49,6 +54,8 @@ if kupay_cursor.rowcount <= 0:
 else:
     print("Inicio de proceso de truncado de tablas en " + EsquemaBD + "")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_prod_liqu")
+    # bdg_cursor.execute("TRUNCATE FROM " + EsquemaBD + ".bdg_prod_liqu where year(fechaIngMader)>=" + str(AgnoACarga))
+    bdg_cursor.execute(" COMMIT; ")
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + " ")
 
     # Muestra fecha y hora actual al iniciar el proceso
@@ -64,12 +71,12 @@ else:
     i = 0
     kupay_cursor.execute("select CodVino, TipoVino, calidad, Cosecha, Codigo, Estado, Aptitud, Remontajes, Falert, "
                          "NumAnalisis, cast(totalcosto as float) as totalcosto, Boletin, FPA, Observacion, Trasiegos, "
-                         "Reserva, FechDispon, CodApela, FechaIngMader, FechaOutMad FROM prod_liqu")
+                         "Reserva, FechDispon, CodApela, FechaIngMader, FechaOutMad FROM prod_liqu ")
     registrosorigen = kupay_cursor.rowcount
     print("(55) tabla bdg_prod_liqu")
     for CodVino, TipoVino, calidad, Cosecha, Codigo, Estado, Aptitud, Remontajes, Falert, NumAnalisis, TotalCosto, \
         Boletin, FPA, Observacion, Trasiegos, Reserva, FechDispon, CodApela, FechaIngMader, \
-         FechaOutMad in kupay_cursor.fetchall():
+        FechaOutMad in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_prod_liqu(CodVino, TipoVino, calidad, Cosecha, Codigo, Estado, " \
                                            "Aptitud, Remontajes, Falert, NumAnalisis, TotalCosto, Boletin, FPA, " \
@@ -80,6 +87,7 @@ else:
                TotalCosto, Boletin, FPA, Observacion, Trasiegos, Reserva, FechDispon, CodApela, FechaIngMader,
                FechaOutMad)
         bdg_cursor.execute(sql, val)
+        print(val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_prod_liqu: ", i)
     # Proceso cuadratura de carga

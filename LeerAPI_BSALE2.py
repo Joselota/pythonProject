@@ -9,8 +9,8 @@ from Tools.funciones import f_SQLEsc
 # Inicializar variables
 lista = []
 limite = 50
-AgnoACarga = '2023'
-MesDeCarga = '9'
+AgnoACarga = '2024'
+MesDeCarga = '7'
 
 # Muestra fecha y hora actual al iniciar el proceso
 localtime = time.asctime(time.localtime(time.time()))
@@ -28,7 +28,7 @@ bdg_cursor.execute(
     "delete " + EsquemaBD + ".detalle from " + EsquemaBD + ".detalle where detalle.document_id in "
                                                            "(SELECT distinct id from " + EsquemaBD + ".documento where year(FROM_UNIXTIME(emissionDate)) = "
     + AgnoACarga + " and month(FROM_UNIXTIME(emissionDate))=" + MesDeCarga + ")")
-print("Fin borrado año 2023 en tabla detalle")
+print("Fin borrado año 2024 en tabla detalle")
 
 # Leer tabla de documentos
 sql = "SELECT distinct id from " + EsquemaBD + ".documento where year(FROM_UNIXTIME(emissionDate)) = " + \

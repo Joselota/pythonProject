@@ -10,6 +10,9 @@ EsquemaBD = "stagekupay"
 SistemaOrigen = "Kupay"
 fechacarga = datetime.datetime.now()
 
+# Inicializar variables locales
+AgnoACarga = 2024
+
 # Generando identificador para proceso de cuadratura
 dia = str(100+int(format(fechacarga.day)))
 mes = str(100+int(format(fechacarga.month)))
@@ -39,6 +42,7 @@ else:
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_existencia_bodega")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_contratoventa")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_detallectoventa")
+    bdg_cursor.execute(" COMMIT; ")
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + " ")
     # Muestra fecha y hora actual al iniciar el proceso
     localtime = time.asctime(time.localtime(time.time()))
@@ -127,7 +131,7 @@ else:
                          "as CostoMS, CAST(costobot AS float) as CostoBot,Litros,cast(TotalCosto as float) "
                          "as TotalCosto,CAST(valltcuba AS float) as mValLtCuba,CostoProd,Temporal,Ficha,QBodega,"
                          "QtyVSC,LitrosVSC,Temp1,CMSReal,CodKit,CMSFormula,Disponible,tmpExistenciaAl,DifCostoMS,"
-                         "CostoBotVSC,TotalCostoVSC,CostoVinoVSC FROM lotes")
+                         "CostoBotVSC,TotalCostoVSC,CostoVinoVSC FROM lotes ")
     registrosorigen = kupay_cursor.rowcount
     print("(51) tabla bdg_lotes")
     for ID_Lote, Fecha, NumOrden, CodVino, Qty, Lote, Tipo_Vino, Cuba_Or, CostoMSVSC, Corcho, Sellote, CantProc, \
@@ -148,6 +152,7 @@ else:
                QBodega, QtyVSC, LitrosVSC, Temp1, CMSReal, CodKit, CMSFormula, Disponible, tmpExistenciaAl, DifCostoMS,
                CostoBotVSC, TotalCostoVSC, CostoVinoVSC)
         bdg_cursor.execute(sql, val)
+        print(val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_lotes: ", i)
     # Proceso cuadratura de carga
@@ -229,6 +234,9 @@ else:
     print("(54) tabla bdg_existencia_bodega")
     for Cod_UnEmb, CodBod, Botellas, Lote, Temp in kupay_cursor.fetchall():
         i = i + 1
+        print(Cod_UnEmb, CodBod, Botellas, Lote, Temp)
+        if str(Temp) == 'inf':
+            Temp = 0
         sql = "INSERT INTO " + EsquemaBD + ".bdg_existencia_bodega (Cod_UnEmb,CodBod,Botellas,Lote,Temp) " \
                                            "VALUES (%s, %s, %s, %s, %s)"
         val = (Cod_UnEmb, CodBod, Botellas, Lote, Temp)

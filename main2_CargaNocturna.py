@@ -1,7 +1,8 @@
 import os
-from DatosConexion.VG import sender_email, email_pass, receiver_email, email_smtp
+from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage
+
 
 def envio_mail(v_email_subject):
     email_subject = v_email_subject
@@ -17,15 +18,17 @@ def envio_mail(v_email_subject):
     server.send_message(message)  # Send email
     server.quit()  # Close connection to serve
 
-os.system('python CargaGuiaGComp.py')  #
-envio_mail("Aviso fin ejecución script CargaGuiaGComp en DL")
-os.system('python ScriptCargaEMB.py')  #
-envio_mail("Aviso fin ejecución script ScriptCargaEMB en DL")
-os.system('python Produccion.py')  #
-envio_mail("Aviso fin ejecución script Produccion en DL")
-os.system('python CargaFacturas.py')  #
-envio_mail("Aviso fin ejecución script CargaFacturas en DL")
-os.system('python aporteFactura.py')  #
-envio_mail("Aviso fin ejecución script aporteFactura en DL")
-print("Fin carga desde Kupay parte 3")
+
+print(" Ejecutando carga desde Kupay ")
+os.system('python EstadisticasBCentral.py')
+envio_mail("Aviso fin ejecución script EstadisticasBCentral en DL")
+os.system('python CargarTablas.py')
+envio_mail("Aviso fin ejecución script CargarTablas en DL")
+os.system('python Softland2.py')
+envio_mail("Aviso fin ejecución script Softland2 en DL")
+os.system('python ProcesosCobranza.py')
+envio_mail("Aviso fin ejecución script ProcesosCobranza en DL")
+os.system('python RPA.py')
+envio_mail("Aviso fin ejecución script RPA en DL")
+envio_mail("Fin Carga básica nocturna")
 exit(1)

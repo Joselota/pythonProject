@@ -35,7 +35,8 @@ else:
     print("OK")
    # TABLA det_emb_prod
     i = 0
-    kupay_cursor.execute('select UserName, Pwd from users')
+    #kupay_cursor.execute('select UserName, Pwd from users')
+    kupay_cursor.execute('select Mercado from clientes')
     registrosorigen = kupay_cursor.rowcount
     for UserName, Pwd in kupay_cursor.fetchall():
         i = i + 1

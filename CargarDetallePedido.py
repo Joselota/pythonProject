@@ -2,13 +2,19 @@ import sys
 import pyodbc
 import pymysql
 import time
-import datetime
+from datetime import datetime
 from DatosConexion.VG import IPServidor, UsuarioBD, PasswordBD
 
 # VariablesGlobales
 EsquemaBD = "stagekupay"
 SistemaOrigen = "Kupay"
-fechacarga = datetime.datetime.now()
+fechacarga = datetime.now()
+
+# Inicializar variables locales
+now = datetime.now()
+AgnoACarga = now.year
+MesDeCarga = now.month
+AgnoAnteriorCarga = AgnoACarga - 1
 
 # Generando identificador para proceso de cuadratura
 dia = str(100+int(format(fechacarga.day)))
@@ -31,10 +37,9 @@ if kupay_cursor.rowcount <= 0:
     sys.exit(-1)
 else:
     print("Inicio de proceso de truncado de tablas en " + EsquemaBD + "")
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_detalle_pedido")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_pedido")
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_destino")
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_destinomezcla")
+    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_detalle_pedido")
+    bdg_cursor.execute("COMMIT;")
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + "")
 
     # Muestra fecha y hora actual al iniciar el proceso
@@ -42,70 +47,7 @@ else:
     print("Fecha y hora de inicio del proceso")
     print(localtime)
 
-    ######################
-    # Cargar tablas
-    ######################
-    # TABLA bdg_destino 44
-    i = 0
-    kupay_cursor.execute(
-        "select Num_ODB, Codigo_Ap, Cuba_Des, TipoVino_Ap, Existencia_Ap,  Existencia_Pp,  Codigo_Pp,  LtsReal, "
-        " TipoVino_Pp,  NomCubaDes,  CodInt_Vino,  NumItem, NomVari,  CodVino,  NBarricas,  Est_Final, Cap_Cuba, "
-        "EstadoAp, EstadoPp, Hecha, LtsOrigen, CaliDes, Cos_Pp,  Cos_Ap,  LtsDescubeTinto, LitrosMovimiento, "
-        "KilosCuba_Ap,  KilosCuba_Pp, Grado,  KilosOrigen,  NOrden,  Recargada,  CAST(tcostoexisteal  AS FLOAT) "
-        "FROM destino")
-    registrosorigen = kupay_cursor.rowcount
-    print("(44) tabla bdg_destino")
-    for Num_ODB, Codigo_Ap, Cuba_Des, TipoVino_Ap, Existencia_Ap, Existencia_Pp, Codigo_Pp, LtsReal, TipoVino_Pp, \
-        NomCubaDes, CodInt_Vino, NumItem, NomVari, CodVino, NBarricas, Est_Final, Cap_Cuba, EstadoAp, EstadoPp, \
-        Hecha, LtsOrigen, CaliDes, Cos_Pp, Cos_Ap, LtsDescubeTinto, LitrosMovimiento, KilosCuba_Ap, KilosCuba_Pp, \
-         Grado, KilosOrigen, NOrden, Recargada, TCostoExisteAl in kupay_cursor.fetchall():
-        i = i + 1
-        sql = "INSERT INTO " + EsquemaBD + ".bdg_destino (Num_ODB, Codigo_Ap, Cuba_Des, TipoVino_Ap, Existencia_Ap, " \
-                                           "Existencia_Pp,  Codigo_Pp,  LtsReal,  TipoVino_Pp,  NomCubaDes, " \
-                                           "CodInt_Vino,  NumItem, NomVari,  CodVino,  NBarricas,  Est_Final," \
-                                           "Cap_Cuba, EstadoAp, EstadoPp, Hecha, LtsOrigen, CaliDes, Cos_Pp,  " \
-                                           "Cos_Ap,  LtsDescubeTinto, LitrosMovimiento, KilosCuba_Ap,  KilosCuba_Pp, " \
-                                           "Grado,  KilosOrigen,  NOrden,  Recargada,  TCostoExisteAl) " \
-                                           "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, " \
-                                           "%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-        val = (Num_ODB, Codigo_Ap, Cuba_Des, TipoVino_Ap, Existencia_Ap, Existencia_Pp, Codigo_Pp, LtsReal, TipoVino_Pp,
-               NomCubaDes, CodInt_Vino, NumItem, NomVari, CodVino, NBarricas, Est_Final, Cap_Cuba, EstadoAp, EstadoPp,
-               Hecha, LtsOrigen, CaliDes, Cos_Pp, Cos_Ap, LtsDescubeTinto, LitrosMovimiento, KilosCuba_Ap, KilosCuba_Pp,
-               Grado, KilosOrigen, NOrden, Recargada, TCostoExisteAl)
-        bdg_cursor.execute(sql, val)
-        bdg.commit()
-    print("Cantidad de registros en la tabla bdg_destino: ", i)
-
-    # Proceso cuadratura de carga
-    sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, " \
-                                       "NroRegistroOrigen, NroRegistroDestino, FechaCarga) " \
-                                       "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    val = (Identificador, SistemaOrigen, 'destino', 'bdg_destino', registrosorigen, i, fechacarga)
-    bdg_cursor.execute(sql, val)
-    bdg.commit()
-
-    # TABLA bdg_destinomezcla 45
-    i = 0
-    kupay_cursor.execute("select Codvino, Codigo, Cantidad, Temp1, Cosecha FROM destinomezcla")
-    registrosorigen = kupay_cursor.rowcount
-    print("(45) tabla bdg_destinomezcla")
-    for Codvino, Codigo, Cantidad, Temp1, Cosecha in kupay_cursor.fetchall():
-        i = i + 1
-        sql = "INSERT INTO " + EsquemaBD + ".bdg_destinomezcla (Codvino, Codigo, Cantidad, Temp1, Cosecha) " \
-                                           "VALUES (%s, %s, %s, %s, %s)"
-        val = (Codvino, Codigo, Cantidad, Temp1, Cosecha)
-        bdg_cursor.execute(sql, val)
-        bdg.commit()
-    print("Cantidad de registros en la tabla bdg_destinomezcla: ", i)
-    # Proceso cuadratura de carga
-    sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, " \
-                                       "NroRegistroOrigen, NroRegistroDestino, FechaCarga) " \
-                                       "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    val = (Identificador, SistemaOrigen, 'destinomezcla', 'bdg_destinomezcla', registrosorigen, i, fechacarga)
-    bdg_cursor.execute(sql, val)
-    bdg.commit()
-
-    # TABLA bdg_pedido 46
+     # TABLA bdg_pedido 46
     i = 0
     kupay_cursor.execute(
         "select NumPedido,Fecha,Fecha_entrega,Codcli,NumFicha,Tficha,PorAvan,Coment,Estado,QtyPEdido,Ref,Despacho,"
@@ -148,7 +90,7 @@ else:
         "SaldoLts,CodProducto,Botellas,Botella,Corcho,Capacidad,MoStd,FReservaCAS,FecPrograma,FechaEtiq,"
         "LineaEmbotelado,Selected,QCasillero,ConVale,SinArte,CodPro,FechaProduccion,Boletin,Kilos,LtsBoletin,"
         "TipoEtiqueta,CasilleroAsig,CodCasillero,HoraIn,HoraFin,Programado,Grado,CodKit,FReservaMS,Saldado,"
-        "Observaciones FROM detalle_pedido")
+        "Observaciones FROM detalle_pedido ")
     registrosorigen = kupay_cursor.rowcount
     print("(47) tabla bdg_detalle_pedido")
     for NumPedido, CVar, CCal, Cosecha, Cant, Unid, CMarc, ID_Pack, Nom_Marc, MermaVin, CantProc, Tip_Vino, Lts, \

@@ -70,6 +70,7 @@ else:
                                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s )"
         val = (ID_MovPedido, CodMat, Cant, Merma, Costo, NItem, LtsProces, FStoc, TotCosto,
                ExistBodega, Frepr)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_det_producc: ", i)

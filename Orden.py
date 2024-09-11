@@ -65,6 +65,7 @@ else:
         val = (Num_ODB, Fecha_OB, Enc_OB, Realiza, Observac, Realiza2, Labor, Done, Lote, Nula, FMezcla, Tipo_Trasiego,
                Nombre, NGuia, CodLinea, CodProducto, FDeshecha, OTPedido, CodOper, CodBodMS, NumIngreso, CodBodPT,
                NumFicha, UnidEmbalaje, CodEstado, TvinoMezcla, Instrucc, CodBodINS, Centralizada, CabOpeNumero)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_orden_bodega: ", i)
@@ -86,6 +87,7 @@ else:
         sql = "INSERT INTO " + EsquemaBD + ".bdg_origen_lote(Lote, Lote_or, QtyLote, MermaLote, CodVino_Or) " \
                                            "VALUES (%s, %s, %s, %s, %s )"
         val = (Lote, Lote_or, QtyLote, MermaLote, CodVino_Or)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_origen_lote: ", i)
@@ -130,6 +132,7 @@ else:
                CodBot, NomBot, CodCorcho, NomCorcho, TipoVIno, Cosecha, ExistBotella, ExistCorcho, CapacBot,
                TotalSolic, HI, HT, TotalHoras, TPerdido, VelTRabajo, TOperacReal, PorcPerfTurno, TotalHH, MermaFiltro,
                LIneaProduccion, CostoBot, CostoCorcho, NumPersonas)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_detalleembotellado: ", i)

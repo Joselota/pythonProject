@@ -78,7 +78,7 @@ else:
         sql = "INSERT INTO " + EsquemaBD + ".bdg_movimmat (CodMov, Fecha, NumDoc, TipDoc, CodMat, Ingreso, Egreso, NFicha, Documento, Saldo, ValorPMP, Hora, SaldoPesos, CodBod, CostoUnit, MontoIngreso, MontoEgreso, NumODC, FechaReal, Centralizada, CabOpeNumero) " \
                                            "VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         val = (CodMov, Fecha, NumDoc, TipDoc, CodMat, Ingreso, Egreso, NFicha, Documento, Saldo, ValorPMP, Hora, SaldoPesos, CodBod, CostoUnit, MontoIngreso, MontoEgreso, NumODC, FechaReal, Centralizada, CabOpeNumero)
-        print(sql, val)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_movimmat: ", i)

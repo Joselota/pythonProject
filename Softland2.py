@@ -117,7 +117,6 @@ try:
     print(sql)
     cursor.execute(sql)
     # records = cursor.fetchall()
-    # print("Total registros leidos desde cwtauxi: ", len(records))
     i = 0
     for CodAux, NomAux, actaux, rutAux, noFaux, dirAux, FonAux1, FonAux2, Fonaux3, ClaCli, cladis, \
         claemp, claotr in cursor.fetchall():
@@ -140,7 +139,6 @@ try:
     # print(sql)
     cursor.execute(sql)
     # records = cursor.fetchall()
-    # print("Total registros leidos desde cwtauxi: ", len(records))
     i = 0
     for PCCODI, PCNIVEL, PCLNIVEL, PCDESC, PCTIPO, PCCCOS, PCAUXI, PCCDOC, PCEDOC, PCCONB, PCMONE, PCDETG, PCPREC, \
         PCEPRC, PCIFIN, PCCOMON, PCTPCM, PCCAPP, PCACTI, PCCMON, PCCODC, PCDINBA, PCCMCP, PCIDMA, PCCBADICI, \
@@ -283,10 +281,6 @@ try:
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Total registros tablas cwttdoc cargados a DL :" + str(i))
-
-
-
-
     # Cerrar la conexión a softland
     cursor.close()
     conn.close()

@@ -6,7 +6,7 @@ from DatosConexion.VG import DRIVER, SERVER, DATABASE, UID, PWD
 
 # VariablesGlobales
 EsquemaBD = "cgf"
-periodo = 2023
+periodo = 2024
 
 # Muestra fecha y hora actual al iniciar el proceso
 localtime = time.asctime(time.localtime(time.time()))

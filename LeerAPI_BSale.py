@@ -1,7 +1,8 @@
 import requests
 import pymysql
 import time
-from DatosConexion.VG import IPServidor, UsuarioBD, PasswordBD, ACCESS_TOKEN_BSALE, sender_email, email_pass, receiver_email, email_smtp
+from DatosConexion.VG import IPServidor, UsuarioBD, PasswordBD, ACCESS_TOKEN_BSALE, sender_email, email_pass, \
+    receiver_email, email_smtp
 import smtplib
 from email.message import EmailMessage
 from Tools.funciones import f_SQLEsc
@@ -11,28 +12,32 @@ from datetime import datetime
 def json_to_string(json):
     js = str(json)
     ret_str = ""
-    for i in js:
+    for k in js:
         f = ""
-        if i == "'":
-            if i == "'":
-                i = "\""
+        if k == "'":
+            if k == "'":
+                k = "\""
             f = ""
-        ret_str += f + i
+        ret_str += f + k
     return ret_str
+
 
 def replace_none_with_empty_str(some_dict):
     return {k: ('' if v is None else v) for k, v in some_dict.items()}
+
 
 # Inicializar variables locales
 now = datetime.now()
 AgnoACarga = now.year
 MesDeCarga = now.month
-print("Periodo de carga : "+str(AgnoACarga) + str(MesDeCarga))
+#AgnoACarga = '2024'
+#MesDeCarga = '08'
+
+print("Periodo de carga : " + str(AgnoACarga) + str(MesDeCarga))
 
 lista = []
 limite = 50
-#AgnoACarga = '2023'
-#MesDeCarga = '12'
+
 url = "https://api.bsale.cl/v1/product_types.json?limit=50&offset=0&access_token=" + ACCESS_TOKEN_BSALE
 cbook_typedummy = '{"href": "https://api.bsale.cl/v1/book_types/1.json", "id": "1"}'
 documentdummy = {'href': 'https://api.bsale.cl/v1/document/0000.json', 'id': '0000'}
@@ -79,7 +84,6 @@ for item in listaTP["items"]:
     bdg.commit()
 print("Cantidad de registros en la tabla tipo_producto: ", i)
 
-
 print("Cargando clientes")
 url = "https://api.bsale.cl/v1/clients.json?limit=50&offset=0&access_token=" + ACCESS_TOKEN_BSALE
 response = requests.get(url, headers={'access_token': ACCESS_TOKEN_BSALE, 'accept': 'application/xml'})
@@ -107,7 +111,7 @@ while i <= totalregistros:
         # print(sql)
         bdg_cursor.execute(sql)
         myresult = bdg_cursor.fetchall()
-        if (bdg_cursor.rowcount == 0):
+        if bdg_cursor.rowcount == 0:
             sql = "INSERT INTO " + EsquemaBD + ".Cliente(id, Code,address,municipality,city,state,firstName," \
                                                "lastName,email,phone,company,note, facebook, twitter,hasCredit, " \
                                                "maxCredit,activity,companyOrPerson,accumulatePoints,points," \
@@ -180,7 +184,11 @@ while i <= totalregistros:
         try:
             response = requests.get(url, headers={'access_token': ACCESS_TOKEN_BSALE, 'accept': 'application/xml'})
             lista = response.json()
-            break
+            if not("items" in lista):
+                print("CHEQUEANDO STATUS CODE: ", response.status_code, " RESPUESTA JSON => ", lista, " REQUEST => ", url)
+                continue
+            else:
+                break
         except:
             print("ERROR RESPONSE:", str(i), " ERROR==>", count_error, "==> \n", response.content)
             time.sleep(10)
@@ -247,6 +255,7 @@ while i <= totalregistros:
                office["id"], user["href"], user["id"], coin["href"], coin["id"], document_taxes["href"],
                details["href"],
                sellers["href"], attributes["href"], references["href"])
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     i += limite
@@ -269,12 +278,10 @@ for item in lista["items"]:
            item["isCash"], item["isCreditMemo"], item["state"], item["maxClientCuota"],
            item["ledgerAccount"], f_SQLEsc(item["ledgerCode"]), item["isAgreementBank"],
            f_SQLEsc(item["agreementCode"]))
+    print(val)
     bdg_cursor.execute(sql, val)
     bdg.commit()
 print("Fin carga tabla tipo_de_pago")
-
-
-
 
 print("Cargando productos")
 url = "https://api.bsale.cl/v1/products.json?limit=50&offset=0&access_token=" + ACCESS_TOKEN_BSALE
@@ -301,6 +308,7 @@ while i <= totalregistros:
                item["ledgerAccount"], item["costCenter"], item["allowDecimal"], item["stockControl"],
                item["printDetailPack"], item["state"], item["prestashopProductId"], item["presashopAttributeId"],
                product_type["href"], product_type["id"], variants["href"], product_taxes["href"])
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     i += limite
@@ -335,6 +343,7 @@ for item in lista["items"]:
            item["state"], item["copyNumber"], item["isCreditNote"], item["continuedHigh"],
            item["ledgerAccount"], item["ipadPrint"], item["ipadPrintHigh"], item["restrictClientType"],
            item["maxDays"], json_to_string(book_type))
+    print(val)
     bdg_cursor.execute(sql, val)
     bdg.commit()
 print("Cantidad de registros en la tabla tipo_documento: ", i)
@@ -364,6 +373,7 @@ for item in lista["items"]:
            item["longitude"], item["isVirtual"], item["country"], item["municipality"], item["city"],
            item["zipCode"], item["email"],
            item["costCenter"], item["state"], item["imagestionCellarId"], item["defaultPriceList"])
+    print(val)
     bdg_cursor.execute(sql, val)
     bdg.commit()
 print("Cantidad de registros en la tabla sucursales: ", i)
@@ -388,6 +398,7 @@ for item in lista["items"]:
                                        "VALUES (%s, %s, %s, %s, %s, %s, %s)"
     val = (item["href"], item["id"], item["firstName"], item["lastName"], item["email"], item["state"],
            office)
+    print(val)
     bdg_cursor.execute(sql, val)
     bdg.commit()
 print("Cantidad de registros en la tabla usuario: ", i)
@@ -419,6 +430,7 @@ while i <= totalregistros:
         continue
 
     for item in lista["items"]:
+
         payment_type = item["payment_type"]
         office = item["office"]
         user = item["user"]
@@ -441,17 +453,20 @@ while i <= totalregistros:
                item["isCreditPayment"], item["createdAt"], item["state"],
                payment_type["href"], payment_type["id"], office["href"], office["id"], user["href"],
                user["id"], document["href"], document["id"], documents)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     i += limite
 print("Fin carga tabla pagos")
 
-print("Borrado tabla detalle con información del año 2023")
+print("Borrado tabla detalle con información")
 bdg_cursor.execute(
     "delete " + EsquemaBD + ".detalle from " + EsquemaBD + ".detalle where detalle.document_id in "
-                                                           "(SELECT distinct id from " + EsquemaBD + ".documento where year(FROM_UNIXTIME(generationDate)) = "
+                                                           "(SELECT distinct id from " + EsquemaBD +
+    ".documento where year(FROM_UNIXTIME(generationDate)) = "
     + str(AgnoACarga) + " and month(FROM_UNIXTIME(generationDate))=" + str(MesDeCarga) + ")")
-print("Fin borrado año 2023 en tabla detalle")
+bdg_cursor.execute(" COMMIT; ")
+print("Fin borrado en tabla detalle")
 
 # Leer tabla de documentos
 sql = "SELECT distinct id from " + EsquemaBD + ".documento where year(FROM_UNIXTIME(generationDate)) = " + \
@@ -493,7 +508,7 @@ for row in myresult:
                item["taxAmount"], f_SQLEsc(item["totalAmount"]), f_SQLEsc(item["netDiscount"]),
                f_SQLEsc(item["totalDiscount"]),
                variant["id"], f_SQLEsc(item["note"]), f_SQLEsc(item["relatedDetailId"]))
-        # print(val)
+        print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Boleta cargada " + str(i))
@@ -504,7 +519,7 @@ print("Fecha y hora de finalizacion del proceso")
 print(localtime2)
 
 # Truncacion de fecha carga
-bdg_cursor.execute("TRUNCATE TABLE "+EsquemaBD+".FechaCargaInformacion")
+bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".FechaCargaInformacion")
 
 # Registro de fecha cargada en base de datos
 Proceso = 'P01'
@@ -526,9 +541,9 @@ message['Subject'] = email_subject
 message['From'] = sender_email
 message['To'] = receiver_email
 message.set_content("Aviso termino de ejecución script")
-server = smtplib.SMTP(email_smtp, 587) # Set smtp server and port
-server.ehlo() # Identify this client to the SMTP server
-server.starttls() # Secure the SMTP connection
-server.login(sender_email, email_pass) # Login to email account
-server.send_message(message) # Send email
-server.quit() # Close connection to server
+server = smtplib.SMTP(email_smtp, 587)  # Set smtp server and port
+server.ehlo()  # Identify this client to the SMTP server
+server.starttls()  # Secure the SMTP connection
+server.login(sender_email, email_pass)  # Login to email account
+server.send_message(message)  # Send email
+server.quit()  # Close connection to server
