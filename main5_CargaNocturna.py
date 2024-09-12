@@ -1,4 +1,7 @@
 import os
+
+from ScriptSecundarios.Kupay import Detall_embGD, CargaGuiaGComp, ScriptCargaEMB
+from ScriptSecundarios.Kupay import CargaFacturas, Produccion, aporteFactura
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage
@@ -18,17 +21,15 @@ def envio_mail(v_email_subject):
     server.send_message(message)  # Send email
     server.quit()  # Close connection to serve
 
-os.system('python Detall_embGD.py')
-envio_mail("Aviso fin ejecución script Detall_embGD en DL")
-os.system('python CargaGuiaGComp.py')
-envio_mail("Aviso fin ejecución script CargaGuiaGComp en DL")
-os.system('python ScriptCargaEMB.py')
-envio_mail("Aviso fin ejecución script ScriptCargaEMB en DL")
-os.system('python CargaFacturas.py')
-envio_mail("Aviso fin ejecución script CargaFacturas en DL")
-os.system('python Produccion.py')
-envio_mail("Aviso fin ejecución script Produccion en DL")
-os.system('python aporteFactura.py')
-envio_mail("Aviso fin ejecución script aporteFactura en DL")
-print("Fin carga desde Kupay parte 3")
+
+print("Fin carga desde Kupay main5")
+
+Detall_embGD.main()
+CargaGuiaGComp.main()
+ScriptCargaEMB.main()
+CargaFacturas.main()
+Produccion.main()
+aporteFactura.main()
+
+print("Fin carga desde Kupay main5")
 exit(1)
