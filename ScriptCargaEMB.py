@@ -37,9 +37,9 @@ else:
     localtime = time.asctime(time.localtime(time.time()))
     print("Fecha y hora de inicio del proceso: " + localtime)
     print("Inicio de proceso de truncado de tablas en " + EsquemaBD + " ")
+    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_detalle_gd")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_det_emb_prod")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_det_embal")
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_detalle_gd")
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + " ")
 
     # TABLA bdg_detalle_gd
