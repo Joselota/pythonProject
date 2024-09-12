@@ -1,4 +1,10 @@
 import os
+from ScriptSecundarios.Bcentral import EstadisticasBCentral
+from ScriptSecundarios.Kupay import ProcesosCobranza
+from ScriptSecundarios.Kupay import CargarTablas
+from ScriptSecundarios.Kupay import Softland2
+from ScriptSecundarios.Kupay import RPA
+
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage
@@ -20,15 +26,12 @@ def envio_mail(v_email_subject):
 
 
 print(" Ejecutando carga desde Kupay ")
-os.system('python EstadisticasBCentral.py')
-envio_mail("Aviso fin ejecución script EstadisticasBCentral en DL")
-os.system('python CargarTablas.py')
-envio_mail("Aviso fin ejecución script CargarTablas en DL")
-os.system('python Softland2.py')
-envio_mail("Aviso fin ejecución script Softland2 en DL")
-os.system('python ProcesosCobranza.py')
-envio_mail("Aviso fin ejecución script ProcesosCobranza en DL")
-os.system('python RPA.py')
-envio_mail("Aviso fin ejecución script RPA en DL")
+
+EstadisticasBCentral.main()
+CargarTablas.main()
+Softland2.main()
+ProcesosCobranza.main()
+RPA.main()
+
 envio_mail("Fin Carga básica nocturna")
 exit(1)
