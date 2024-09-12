@@ -1,4 +1,9 @@
 import os
+
+from ScriptSecundarios.Kupay import Controller, Orden, KardexGranel, CargaCostosVinos, ScriptVC
+from ScriptSecundarios.Kupay import DestinoMezcla
+from ScriptSecundarios.Kupay import CargarTMovimPedido
+
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage
@@ -19,20 +24,15 @@ def envio_mail(v_email_subject):
     server.quit()  # Close connection to serve
 
 
-os.system('python Controller.py')
-envio_mail("Aviso fin ejecución script Controller en DL")
-os.system('python Orden.py')
-envio_mail("Aviso fin ejecución script Orden en DL")
-os.system('python KardexGranel.py')
-envio_mail("Aviso fin ejecución script KardexGranel en DL")
-os.system('python CargaCostosVinos.py')
-envio_mail("Aviso fin ejecución script CargaCostosVinos en DL")
-os.system('python ScriptVC.py')
-envio_mail("Aviso fin ejecución script ScriptVC en DL")
-os.system('python DestinoMezcla.py')
-envio_mail("Aviso fin ejecución script DestinoMezcla en DL")
-os.system('python CargarTMovimPedido.py')
-envio_mail("Aviso fin ejecución script CargarTMovimPedido en DL")
+print("Inicio ejecutando main4")
 
-print("Fin carga desde Kupay main 3")
+Controller.main()
+Orden.main()
+KardexGranel.main()
+CargaCostosVinos.main()
+ScriptVC.main()
+DestinoMezcla.main()
+CargarTMovimPedido.main()
+
+print("Fin carga desde Kupay main4")
 exit(1)
