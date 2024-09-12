@@ -1443,7 +1443,7 @@ def main():
         bdg_cursor.close()
         print("fin cierre de cursores y bases")
     envio_mail("Fin proceso de Cargar Tablas")
-    exit(1)
+
 
 if __name__ == "__main__":
     main()

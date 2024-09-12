@@ -82,7 +82,6 @@ def main():
     bdg_cursor.close()
     print("fin cierre de cursores y bases")
     envio_mail("Fin proceso de Cargar Tablas en Campos 7/9")
-    exit(1)
 
 if __name__ == "__main__":
     main()

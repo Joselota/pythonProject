@@ -309,7 +309,7 @@ def main():
 
     # Envio de mail con aviso de termino de ejecución script
     envio_mail("Aviso fin ejecución script Softland en DL")
-    exit(1)
+
 
 if __name__ == "__main__":
     main()
