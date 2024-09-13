@@ -36,13 +36,14 @@ else:
     # Muestra fecha y hora actual al iniciar el proceso
     localtime = time.asctime(time.localtime(time.time()))
     print("Fecha y hora de inicio del proceso" + localtime)
-    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_facturas")
+    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".bdg_embotellado")
     print("Fin del proceso de truncado de tablas")
    # TABLA facturas 19
     i = 0
-    kupay_cursor.execute('SELECT Num_ODB, CodMat, Cant, 0 as cant_Real ,CodFam, Merma, NItem, Tipo_Vino, Cosecha, Litros, Familia, Existencia, Tipo, LoteODB FROM embotellado')
+    kupay_cursor.execute('SELECT Num_ODB, CodMat, Cant, 0 as cant_Real ,CodFam, Merma, NItem, '
+                         'Tipo_Vino, Cosecha, Litros, Familia, Existencia, Tipo, LoteODB FROM embotellado')
     registrosorigen = kupay_cursor.rowcount
-    print("(19) tabla facturas")
+    print("(19) tabla embotellado")
     for Num_ODB, CodMat, Cant, cant_Real, CodFam, Merma, NItem, Tipo_Vino, Cosecha, Litros, Familia, Existencia, Tipo, LoteODB in kupay_cursor.fetchall():
         i = i + 1
         sql = "INSERT INTO " + EsquemaBD + ".bdg_embotellado (Num_ODB, CodMat, Cant, cant_Real, CodFam, Merma, " \
@@ -52,7 +53,7 @@ else:
         val = (Num_ODB, CodMat, Cant, cant_Real, CodFam, Merma, NItem, Tipo_Vino, Cosecha, Litros, Familia, Existencia, Tipo, LoteODB)
         bdg_cursor.execute(sql, val)
         bdg.commit()
-    print("Cantidad de registros en la tabla facturas: ", i)
+    print("Cantidad de registros en la tabla embotellado: ", i)
 
     # Cierre de cursores y bases de datos
     kupay_cursor.close()

@@ -41,39 +41,47 @@ else:
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + " ")
 
     ## TABLA proceso
-    kupay_cursor.execute('select CodPro, Nombre, NSecu, Cod_Estado, Valor_Un, Pide_Ficha, Ponder, Nacional, Export, CuentaCargo, CodOper, CodMerma, CodEstOrigen, Reproceso, CodOpCostoStd, CostoLitroEmbo from proceso')
+    kupay_cursor.execute('select CodPro, Nombre, NSecu, Cod_Estado, Valor_Un, Pide_Ficha, Ponder, Nacional, '
+                         'Export, CuentaCargo, CodOper, CodMerma, CodEstOrigen, Reproceso, CodOpCostoStd, '
+                         'CostoLitroEmbo from proceso')
     print("(63) tabla bdg_proceso")
     registrosorigen = kupay_cursor.rowcount
     i = 0
     for CodPro, Nombre, NSecu, Cod_Estado, Valor_Un, Pide_Ficha, Ponder, Nacional, Export, CuentaCargo, CodOper, CodMerma, CodEstOrigen, Reproceso, CodOpCostoStd, CostoLitroEmbo in kupay_cursor.fetchall():
         i = i + 1
-        sql = "INSERT INTO bdg_proceso (CodPro, Nombre, NSecu, Cod_Estado, Valor_Un, Pide_Ficha, Ponder, Nacional, Export, CuentaCargo, CodOper, CodMerma, CodEstOrigen, Reproceso, CodOpCostoStd, CostoLitroEmbo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO bdg_proceso (CodPro, Nombre, NSecu, Cod_Estado, Valor_Un, Pide_Ficha, Ponder, " \
+              "Nacional, Export, CuentaCargo, CodOper, CodMerma, CodEstOrigen, Reproceso, CodOpCostoStd, " \
+              "CostoLitroEmbo) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
         val = (CodPro, Nombre, NSecu, Cod_Estado, Valor_Un, Pide_Ficha, Ponder, Nacional, Export, CuentaCargo, CodOper, CodMerma, CodEstOrigen, Reproceso, CodOpCostoStd, CostoLitroEmbo)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_proceso: ", i)
 
     #Proceso cuadratura de carga
-    sql = "INSERT INTO proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, NroRegistroOrigen, NroRegistroDestino, FechaCarga) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, NroRegistroOrigen, " \
+          "NroRegistroDestino, FechaCarga) VALUES (%s, %s, %s, %s, %s, %s, %s)"
     val = (Identificador, SistemaOrigen, 'proceso', 'bdg_proceso', registrosorigen, i, fechacarga)
     bdg_cursor.execute(sql, val)
     bdg.commit()
 
     ## TABLA bdg_operacion
-    kupay_cursor.execute('select CodOper, Operacion, CuentaCargo, TipoOper, NoVigente, FechaEstado, UltUsuarioMod from operacion')
+    kupay_cursor.execute('select CodOper, Operacion, CuentaCargo, TipoOper, NoVigente, '
+                         'FechaEstado, UltUsuarioMod from operacion')
     print("(64) tabla bdg_operacion")
     registrosorigen = kupay_cursor.rowcount
     i = 0
     for CodOper, Operacion, CuentaCargo, TipoOper, NoVigente, FechaEstado, UltUsuarioMod in kupay_cursor.fetchall():
         i = i + 1
-        sql = "INSERT INTO bdg_operacion (CodOper, Operacion, CuentaCargo, TipoOper, NoVigente, FechaEstado, UltUsuarioMod) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        sql = "INSERT INTO bdg_operacion (CodOper, Operacion, CuentaCargo, TipoOper, NoVigente, " \
+              "FechaEstado, UltUsuarioMod) VALUES (%s, %s, %s, %s, %s, %s, %s)"
         val = (CodOper, Operacion, CuentaCargo, TipoOper, NoVigente, FechaEstado, UltUsuarioMod)
         bdg_cursor.execute(sql, val)
         bdg.commit()
     print("Cantidad de registros en la tabla bdg_proceso: ", i)
 
     #Proceso cuadratura de carga
-    sql = "INSERT INTO proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, NroRegistroOrigen, NroRegistroDestino, FechaCarga) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+    sql = "INSERT INTO proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, NroRegistroOrigen, " \
+          "NroRegistroDestino, FechaCarga) VALUES (%s, %s, %s, %s, %s, %s, %s)"
     val = (Identificador, SistemaOrigen, 'operacion', 'bdg_operacion', registrosorigen, i, fechacarga)
     bdg_cursor.execute(sql, val)
     bdg.commit()
