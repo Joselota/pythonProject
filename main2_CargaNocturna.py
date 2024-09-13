@@ -28,10 +28,15 @@ def envio_mail(v_email_subject):
 print(" Ejecutando carga desde Kupay ")
 
 EstadisticasBCentral.main()
+print("Fin ejecutando Carga EstadisticasBCentral")
 CargarTablas.main()
+print("Fin ejecutando Carga CargarTablas")
 Softland2.main()
+print("Fin ejecutando Carga Softland2")
 ProcesosCobranza.main()
+print("Fin ejecutando Carga ProcesosCobranza")
 RPA.main()
+print("Fin ejecutando Carga RPA")
 
 envio_mail("Fin Carga básica nocturna")
 exit(1)

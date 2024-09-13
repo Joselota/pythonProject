@@ -55,7 +55,7 @@ def main():
     print(kupay_cursor.rowcount)
     if kupay_cursor.rowcount <= 0:
         print("NO HAY REGISTROS")
-        sys.exit(-1)
+        return
     else:
         print("OK")
         # Muestra fecha y hora actual al iniciar el proceso
