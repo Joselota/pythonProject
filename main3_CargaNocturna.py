@@ -26,12 +26,25 @@ def envio_mail(v_email_subject):
 print(" Ejecutando carga desde Kupay ")
 
 Embalaje.main()
-GuiaVinos.main()
-vinosembo.main()
-CargaEspecial.main()
-TablasGuiaDespacho.main()
-CargarDetallePedido.main()
-Prod_liqu.main()
+envio_mail("Fin Embalaje")
 
-envio_mail("Fin mail 2")
+GuiaVinos.main()
+envio_mail("Fin GuiaVinos")
+
+vinosembo.main()
+envio_mail("Fin vinosembo")
+
+CargaEspecial.main()
+envio_mail("Fin CargaEspecial")
+
+TablasGuiaDespacho.main()
+envio_mail("Fin TablasGuiaDespacho")
+
+CargarDetallePedido.main()
+envio_mail("Fin CargarDetallePedido")
+
+Prod_liqu.main()
+envio_mail("Fin Prod_liqu")
+
+envio_mail("Fin main3")
 exit(1)
