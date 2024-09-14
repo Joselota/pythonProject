@@ -1,8 +1,8 @@
 import os
-from ScriptSecundarios.Bcentral import EstadisticasBCentral
-from ScriptSecundarios.Kupay import ProcesosCobranza
 from ScriptSecundarios.Kupay import CargarTablas
 from ScriptSecundarios.Kupay import Softland2
+from ScriptSecundarios.Bcentral import EstadisticasBCentral
+from ScriptSecundarios.Kupay import ProcesosCobranza
 from ScriptSecundarios.Kupay import RPA
 
 from DatosConexion.VG import sender_email, email_pass, email_smtp
@@ -29,12 +29,18 @@ print(" Ejecutando carga desde Kupay ")
 
 CargarTablas.main()
 print("Fin ejecutando Carga CargarTablas")
-EstadisticasBCentral.main()
-print("Fin ejecutando Carga EstadisticasBCentral")
+
 Softland2.main()
 print("Fin ejecutando Carga Softland2")
+
+EstadisticasBCentral.main()
+print("Fin ejecutando Carga EstadisticasBCentral")
+
 ProcesosCobranza.main()
 print("Fin ejecutando Carga ProcesosCobranza")
+
+RPA.main()
+print("Fin ejecutando Carga RPA")
 
 envio_mail("Fin Carga básica nocturna")
 exit(1)
