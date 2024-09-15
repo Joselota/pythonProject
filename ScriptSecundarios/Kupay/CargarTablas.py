@@ -843,6 +843,8 @@ def main():
             CodCondPago, WS_NumCabID, WS_FolioSII, CodModVenta, CodViaTransporte, FormaPagoCod, OtrosGastos, \
             ArancelesImpuestos, CDIOtrGastos, CDIAImpuestos, CabLlpId, CabOpeNumero in kupay_cursor.fetchall():
             i = i + 1
+            if str(TotalPesos) == 'inf':
+                TotalPesos = 0
             sql = "INSERT INTO " + EsquemaBD + ".bdg_factura_expo (NumeroFactExp,Fecha,CodCliente,Moneda," \
                                                "TotalMercaderia,FormaPagoNom,FechaVence,Transporte,Embarque," \
                                                "BillOfLanding,InfoExportacion,PesoNeto,PesoBruto,Volumen,NumCajas," \
