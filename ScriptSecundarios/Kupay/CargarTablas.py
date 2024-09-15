@@ -883,6 +883,7 @@ def main():
                    CDISeguro, CDIFlete, CodCC, CodCondPago, WS_NumCabID, WS_FolioSII, CodModVenta, CodViaTransporte,
                    FormaPagoCod, OtrosGastos, ArancelesImpuestos,
                    CDIOtrGastos, CDIAImpuestos, CabLlpId, CabOpeNumero)
+            print(val)
             bdg_cursor.execute(sql, val)
             bdg.commit()
         print("Cantidad de registros en la tabla factura_expo: ", i)

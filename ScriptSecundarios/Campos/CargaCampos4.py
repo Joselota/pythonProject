@@ -52,7 +52,7 @@ def main():
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".MovCtoFinPersonal")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".MovHEDia")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".MovHileraDia")
-    bdg_cursor.execute("DELETE FROM "    + EsquemaBD + ".MovInsumos WHERE year(Fecha)=2024")
+    bdg_cursor.execute("DELETE FROM " + EsquemaBD + ".MovInsumos WHERE year(Fecha)=2024")
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + " ")
 
     # Base de datos Kupay (Desde donde se leen los datos)

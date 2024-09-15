@@ -26,12 +26,19 @@ def envio_mail(v_email_subject):
 print("Fin carga desde Kupay main5")
 
 CargaFacturas.main()
+print("Fin ejecutando Carga CargaFacturas")
 aporteFactura.main()
+print("Fin ejecutando Carga aporteFactura")
 Produccion.main()
+print("Fin ejecutando Carga Produccion")
 CargaCostosVinos.main()
+print("Fin ejecutando Carga CargaCostosVinos")
 ScriptVC.main()
+print("Fin ejecutando Carga ScriptVC")
 barricas.main()
+print("Fin ejecutando Carga barricas")
 CargarTMovimPedido.main()
+print("Fin ejecutando Carga CargarTMovimPedido")
 
-print("Fin carga desde Kupay main5")
-exit(1)
+print("Fin carga desde Kupay main6")
+

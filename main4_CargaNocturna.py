@@ -27,12 +27,25 @@ def envio_mail(v_email_subject):
 print("Inicio ejecutando main4")
 
 Controller.main()
+print("Fin ejecutando Carga Controller")
+
 Orden.main()
+print("Fin ejecutando Carga Orden")
+
 KardexGranel.main()
+print("Fin ejecutando Carga KardexGranel")
+
 CargaCostosVinos.main()
+print("Fin ejecutando Carga CargaCostosVinos")
+
 ScriptVC.main()
+print("Fin ejecutando Carga ScriptVC")
+
 DestinoMezcla.main()
+print("Fin ejecutando Carga DestinoMezcla")
+
 CargarTMovimPedido.main()
+print("Fin ejecutando Carga CargarTMovimPedido")
 
 print("Fin carga desde Kupay main4")
 exit(1)

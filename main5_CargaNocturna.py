@@ -24,9 +24,13 @@ def envio_mail(v_email_subject):
 print("Fin carga desde Kupay main5")
 
 Detall_embGD.main()
-CargaGuiaGComp.main()
-ScriptCargaEMB.main()
+print("Fin ejecutando Carga Detall_embGD")
 
+CargaGuiaGComp.main()
+print("Fin ejecutando Carga CargaGuiaGComp")
+
+ScriptCargaEMB.main()
+print("Fin ejecutando Carga ScriptCargaEMB")
 
 print("Fin carga desde Kupay main5")
-exit(1)
+

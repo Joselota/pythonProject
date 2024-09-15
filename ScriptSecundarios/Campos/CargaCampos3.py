@@ -61,7 +61,8 @@ def main():
         if str(Costo) == 'inf':
             Costo = 0
         print(CodMovDia, CodLabor, CodCuartel, CodPer, Fecha, Folio, Costo, IdActividad)
-        sql = "INSERT INTO " + EsquemaBD + ".costolab(CodMovDia, CodLabor, CodCuartel, CodPer, Fecha, Folio, Costo, IdActividad) " \
+        sql = "INSERT INTO " + EsquemaBD + ".costolab(CodMovDia, CodLabor, CodCuartel, CodPer, " \
+                                           "Fecha, Folio, Costo, IdActividad) " \
                                             "VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
         val = (CodMovDia, CodLabor, CodCuartel, CodPer, Fecha, Folio, Costo, IdActividad)
         bdg_cursor.execute(sql, val)
