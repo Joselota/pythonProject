@@ -52,7 +52,7 @@ def main():
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".MovCtoFinPersonal")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".MovHEDia")
     bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".MovHileraDia")
-    bdg_cursor.execute("DELETE FROM " + EsquemaBD + ".MovInsumos WHERE year(Fecha)=2024")
+    bdg_cursor.execute("TRUNCATE TABLE " + EsquemaBD + ".MovInsumos2024")
     print("Fin del proceso de truncado de tablas en " + EsquemaBD + " ")
 
     # Base de datos Kupay (Desde donde se leen los datos)
@@ -323,7 +323,7 @@ def main():
                           'CantIngreso, CantEgreso, Mes, NomProd, BdgCodigo, BdgDestino, NumODC, ValorMoneda, '
                           'CodCtaCtble, CodCC, Hora, NumExportacion, CantidadNC, CodFaena, IDMovimiento, '
                           'DifCorreccion, CodMoneda, Compra, NumDocAso, TipoDocAso, IvaRec, IvaNoRec, NLineaODC '
-                          'FROM MovInsumos')
+                          'FROM MovInsumos where year(Fecha)=2024')
     registrosorigen = campos_cursor.rowcount
     print("(57) tabla MovInsumos")
     print(registrosorigen)
@@ -345,7 +345,7 @@ def main():
     sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, TablaDestino, " \
                                        "NroRegistroOrigen, NroRegistroDestino, FechaCarga) " \
                                        "VALUES (%s, %s, %s, %s, %s, %s, %s)"
-    val = (Identificador, SistemaOrigen, 'MovInsumos', 'MovInsumos', registrosorigen, i, fechacarga)
+    val = (Identificador, SistemaOrigen, 'MovInsumos', 'MovInsumos2024', registrosorigen, i, fechacarga)
     bdg_cursor.execute(sql, val)
     bdg.commit()
 

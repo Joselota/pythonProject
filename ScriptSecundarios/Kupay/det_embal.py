@@ -2,14 +2,16 @@ import sys
 import pyodbc
 import pymysql
 import time
-import datetime
+from datetime import datetime
 from DatosConexion.VG import IPServidor, UsuarioBD, PasswordBD
 from Tools.funciones import f_limpiar
 
 # VariablesGlobales
 EsquemaBD = "stagekupay"
 SistemaOrigen = "Kupay"
+
 fechacarga = datetime.now()
+print(fechacarga)
 
 # Generando identificador para proceso de cuadratura
 dia = str(100+int(format(fechacarga.day)))
