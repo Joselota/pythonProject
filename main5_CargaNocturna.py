@@ -1,6 +1,4 @@
-import os
-
-from ScriptSecundarios.Kupay import Detall_embGD, CargaGuiaGComp, ScriptCargaEMB
+from ScriptSecundarios.Kupay import Detall_embGD, CargaGuiaGComp
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage

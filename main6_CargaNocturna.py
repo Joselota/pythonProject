@@ -1,6 +1,3 @@
-import os
-
-from ScriptSecundarios.Kupay import Detall_embGD, CargaGuiaGComp, ScriptCargaEMB
 from ScriptSecundarios.Kupay import CargaFacturas, aporteFactura
 from ScriptSecundarios.Kupay import Produccion, CargaCostosVinos, ScriptVC, barricas, CargarTMovimPedido
 from DatosConexion.VG import sender_email, email_pass, email_smtp
