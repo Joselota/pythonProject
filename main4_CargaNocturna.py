@@ -1,8 +1,6 @@
 import os
 
-from ScriptSecundarios.Kupay import Controller, Orden, KardexGranel, CargaCostosVinos, ScriptVC
-from ScriptSecundarios.Kupay import DestinoMezcla
-from ScriptSecundarios.Kupay import CargarTMovimPedido
+from ScriptSecundarios.Kupay import det_embal, ScriptCargaEMB
 
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
@@ -24,28 +22,15 @@ def envio_mail(v_email_subject):
     server.quit()  # Close connection to serve
 
 
-print("Inicio ejecutando main4")
+print(" Ejecutando carga desde Kupay ")
 
-Controller.main()
-print("Fin ejecutando Carga Controller")
 
-Orden.main()
-print("Fin ejecutando Carga Orden")
+det_embal.main()
+envio_mail("Fin det_embal")
 
-KardexGranel.main()
-print("Fin ejecutando Carga KardexGranel")
+ScriptCargaEMB.main()
+envio_mail("Fin ScriptCargaEMB")
 
-CargaCostosVinos.main()
-print("Fin ejecutando Carga CargaCostosVinos")
 
-ScriptVC.main()
-print("Fin ejecutando Carga ScriptVC")
-
-DestinoMezcla.main()
-print("Fin ejecutando Carga DestinoMezcla")
-
-CargarTMovimPedido.main()
-print("Fin ejecutando Carga CargarTMovimPedido")
-
-print("Fin carga desde Kupay main4")
+envio_mail("Fin main3")
 exit(1)
