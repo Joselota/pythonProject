@@ -1,7 +1,6 @@
 import os
 
-from ScriptSecundarios.Kupay import Embalaje, GuiaVinos, vinosembo, CargaEspecial, TablasGuiaDespacho
-from ScriptSecundarios.Kupay import CargarDetallePedido, Prod_liqu
+from ScriptSecundarios.Kupay import det_embal, ScriptCargaEMB
 
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
@@ -25,26 +24,13 @@ def envio_mail(v_email_subject):
 
 print(" Ejecutando carga desde Kupay ")
 
-Embalaje.main()
-envio_mail("Fin Embalaje")
 
-GuiaVinos.main()
-envio_mail("Fin GuiaVinos")
+det_embal.main()
+envio_mail("Fin det_embal")
 
-vinosembo.main()
-envio_mail("Fin vinosembo")
+ScriptCargaEMB.main()
+envio_mail("Fin ScriptCargaEMB")
 
-CargaEspecial.main()
-envio_mail("Fin CargaEspecial")
-
-TablasGuiaDespacho.main()
-envio_mail("Fin TablasGuiaDespacho")
-
-CargarDetallePedido.main()
-envio_mail("Fin CargarDetallePedido")
-
-Prod_liqu.main()
-envio_mail("Fin Prod_liqu")
 
 envio_mail("Fin main3")
 exit(1)

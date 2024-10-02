@@ -1,4 +1,5 @@
-from ScriptSecundarios.Kupay import Detall_embGD, CargaGuiaGComp
+from ScriptSecundarios.Kupay import CargaFacturas, aporteFactura
+from ScriptSecundarios.Kupay import Produccion, CargaCostosVinos, ScriptVC, barricas, CargarTMovimPedido
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage
@@ -21,12 +22,20 @@ def envio_mail(v_email_subject):
 
 print("Fin carga desde Kupay main5")
 
-Detall_embGD.main()
-print("Fin ejecutando Carga Detall_embGD")
+CargaFacturas.main()
+print("Fin ejecutando Carga CargaFacturas")
+aporteFactura.main()
+print("Fin ejecutando Carga aporteFactura")
+Produccion.main()
+print("Fin ejecutando Carga Produccion")
+CargaCostosVinos.main()
+print("Fin ejecutando Carga CargaCostosVinos")
+ScriptVC.main()
+print("Fin ejecutando Carga ScriptVC")
+barricas.main()
+print("Fin ejecutando Carga barricas")
+CargarTMovimPedido.main()
+print("Fin ejecutando Carga CargarTMovimPedido")
 
-CargaGuiaGComp.main()
-print("Fin ejecutando Carga CargaGuiaGComp")
-
-
-print("Fin carga desde Kupay main5")
+print("Fin carga desde Kupay main6")
 

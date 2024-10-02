@@ -150,6 +150,10 @@ def main():
         bdg_cursor.execute(sql, val)
         bdg.commit()
 
+        print("Ejecuta proceso que crea tabla de paso")
+        bdg_cursor.execute("call stagekupay.proc_mermas_embalaje;")
+        print("Termino proceso que crea tabla de paso")
+
         # Muestra fecha y hora actual al finalizar el proceso
         localtime2 = time.asctime(time.localtime(time.time()))
         print("Fecha y hora de finalizacion del proceso")

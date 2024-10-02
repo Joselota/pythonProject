@@ -1,5 +1,8 @@
-from ScriptSecundarios.Kupay import CargaFacturas, aporteFactura
-from ScriptSecundarios.Kupay import Produccion, CargaCostosVinos, ScriptVC, barricas, CargarTMovimPedido
+from ScriptSecundarios.Kupay import CargarTablas
+from ScriptSecundarios.Kupay import Softland2
+from ScriptSecundarios.Bcentral import EstadisticasBCentral
+from ScriptSecundarios.Kupay import ProcesosCobranza
+from ScriptSecundarios.Kupay import RPA
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage
@@ -20,22 +23,22 @@ def envio_mail(v_email_subject):
     server.quit()  # Close connection to serve
 
 
-print("Fin carga desde Kupay main5")
+print(" Ejecutando carga desde Kupay ")
 
-CargaFacturas.main()
-print("Fin ejecutando Carga CargaFacturas")
-aporteFactura.main()
-print("Fin ejecutando Carga aporteFactura")
-Produccion.main()
-print("Fin ejecutando Carga Produccion")
-CargaCostosVinos.main()
-print("Fin ejecutando Carga CargaCostosVinos")
-ScriptVC.main()
-print("Fin ejecutando Carga ScriptVC")
-barricas.main()
-print("Fin ejecutando Carga barricas")
-CargarTMovimPedido.main()
-print("Fin ejecutando Carga CargarTMovimPedido")
+CargarTablas.main()
+envio_mail("Fin ejecutando Carga CargarTablas")
 
-print("Fin carga desde Kupay main6")
+Softland2.main()
+envio_mail("Fin ejecutando Carga Softland2")
 
+EstadisticasBCentral.main()
+envio_mail("Fin ejecutando Carga EstadisticasBCentral")
+
+ProcesosCobranza.main()
+envio_mail("Fin ejecutando Carga ProcesosCobranza")
+
+RPA.main()
+envio_mail("Fin ejecutando Carga RPA")
+
+envio_mail("Fin Carga básica nocturna")
+exit(1)

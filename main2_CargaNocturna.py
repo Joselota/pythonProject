@@ -1,8 +1,8 @@
-from ScriptSecundarios.Kupay import CargarTablas
-from ScriptSecundarios.Kupay import Softland2
-from ScriptSecundarios.Bcentral import EstadisticasBCentral
-from ScriptSecundarios.Kupay import ProcesosCobranza
-from ScriptSecundarios.Kupay import RPA
+import os
+
+from ScriptSecundarios.Kupay import Embalaje, GuiaVinos, vinosembo, CargaEspecial, TablasGuiaDespacho
+from ScriptSecundarios.Kupay import CargarDetallePedido, Prod_liqu
+
 from DatosConexion.VG import sender_email, email_pass, email_smtp
 import smtplib
 from email.message import EmailMessage
@@ -25,20 +25,26 @@ def envio_mail(v_email_subject):
 
 print(" Ejecutando carga desde Kupay ")
 
-CargarTablas.main()
-envio_mail("Fin ejecutando Carga CargarTablas")
+Embalaje.main()
+envio_mail("Fin Embalaje")
 
-Softland2.main()
-envio_mail("Fin ejecutando Carga Softland2")
+GuiaVinos.main()
+envio_mail("Fin GuiaVinos")
 
-EstadisticasBCentral.main()
-envio_mail("Fin ejecutando Carga EstadisticasBCentral")
+vinosembo.main()
+envio_mail("Fin vinosembo")
 
-ProcesosCobranza.main()
-envio_mail("Fin ejecutando Carga ProcesosCobranza")
+CargaEspecial.main()
+envio_mail("Fin CargaEspecial")
 
-RPA.main()
-envio_mail("Fin ejecutando Carga RPA")
+TablasGuiaDespacho.main()
+envio_mail("Fin TablasGuiaDespacho")
 
-envio_mail("Fin Carga básica nocturna")
+CargarDetallePedido.main()
+envio_mail("Fin CargarDetallePedido")
+
+Prod_liqu.main()
+envio_mail("Fin Prod_liqu")
+
+envio_mail("Fin main3")
 exit(1)
