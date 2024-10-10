@@ -3,11 +3,13 @@
 IPServidor = "127.0.0.1"
 UsuarioBD = "operador"
 PasswordBD = "Viu2022"
+
 # Token de BSALE para consultar API
 ACCESS_TOKEN_BSALE = "5e108dccc7385f26ff084dac59bff1b8d90423c2"
 # Usuario y Token para utilizar la API de Banco Central
 BC_USUARIO = "771076505"
 BC_TOKEN = "7dYq4yxcyWc4"
+
 # Credenciales para conectarse a Sharepoint
 usernameSP = 'igonzalez@viumanent.cl'
 passwordSP = 'Blinky2023'
