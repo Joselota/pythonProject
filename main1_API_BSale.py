@@ -10,7 +10,7 @@ from datetime import datetime
 
 
 def json_to_string(json):
-    js = str(json)1 bn,4
+    js = str(json)
     ret_str = ""
     for k in js:
         f = ""
