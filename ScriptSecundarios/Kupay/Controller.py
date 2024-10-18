@@ -436,7 +436,7 @@ def main():
                        "       Tipo_vino as tipovino "
                        "  from stagekupay.vista_vta_historica_comp "
                        "  join stagekupay.vista_producto on (vista_vta_historica_comp.codproducto = vista_producto.codproducto) "
-                       " where ano = '2022' "
+                       " where ano = '2023' "
                        " group by Tipo_vino ")
     for cajas9L, tipovino in bdg_cursor.fetchall():
         i = i + 1
