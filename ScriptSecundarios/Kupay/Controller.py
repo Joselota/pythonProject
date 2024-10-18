@@ -45,7 +45,7 @@ def main():
     localtime = time.asctime(time.localtime(time.time()))
     print("Fecha y hora de inicio del proceso")
     print(localtime)
-    print("hola!")
+
 
     # ##########################################################################################################
     # Inicio lógica para determinar cosecha vigente
