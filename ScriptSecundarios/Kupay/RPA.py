@@ -7,19 +7,6 @@ from email.message import EmailMessage
 from DatosConexion.VG import DRIVER, SERVER, DATABASE, UID, PWD
 from datetime import datetime
 
-def envio_mail(v_email_subject):
-    email_subject = v_email_subject
-    message = EmailMessage()
-    message['Subject'] = email_subject
-    message['From'] = sender_email
-    message['To'] = receiver_email
-    message.set_content("Aviso termino de ejecución script")
-    server = smtplib.SMTP(email_smtp, 587)  # Set smtp server and port
-    server.ehlo()  # Identify this client to the SMTP server
-    server.starttls()  # Secure the SMTP connection
-    server.login(sender_email, email_pass)  # Login to email account
-    server.send_message(message)  # Send email
-    server.quit()  # Close connection to serve
 
 def main():
     # VariablesGlobales
@@ -81,9 +68,6 @@ def main():
     # Cerrar la conexión del datalake
     bdg_cursor.close()
     bdg.close()
-
-    # Envio de mail con aviso de termino de ejecución script
-    envio_mail("Aviso fin ejecución script dte en DL")
 
 
 if __name__ == "__main__":
