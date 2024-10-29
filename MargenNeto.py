@@ -61,7 +61,7 @@ else:
         print(val)
         bdg_cursor.execute(sql, val)
         bdg.commit()
-    print("Cantidad de registros en la tabla kardex_granel: ", i)
+    print("Cantidad de registros en la tabla tabla_ventaactual: ", i)
     # Proceso cuadratura de carga
     sql = "INSERT INTO " + EsquemaBD + ".proc_cuadratura (id, SistemaOrigen, TablaOrigen, " \
                                        "TablaDestino, NroRegistroOrigen, NroRegistroDestino, FechaCarga) " \
